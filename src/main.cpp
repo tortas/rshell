@@ -15,7 +15,7 @@ int main()
 	char usrString[256];
 	cin.getline(usrString, 256, '\n');
 	char *args[256];
-	char *temp = strtok(usrString, " \n");
+	char *temp = strtok(usrString, " \n;");
 	int pos = 0;
 	int cnt = 0;
 	while (temp != 0)
