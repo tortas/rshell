@@ -13,38 +13,31 @@ using namespace std;
 int check_connect(const string& str, int& pos, int start){
 	unsigned found = 0;
 	found = str.find_first_of(";&|#",start);
-	cout << "FLAG: entering check function" << endl;
 	if (found >= str.size()){
 		pos = -1;
 		return -1;
 	}
 	else{
-		cout << "FLAG: checking connectors" << endl;
 		if (str.at(found) == ';'){
 			pos = found;
 			return 1;
 		}
 		else if (str.at(found) == '&'){
-			//FIX check for next &
-			cout << "FLAG: found &" << endl;
 			if (str.at(found+1) == '&'){
 				pos = found;
 				return 2;
 			}
 			else{
-				cout << "flag: about to recursively call" << endl;
 				return check_connect(str,pos,found+1);
 			}
 		}
 
 		else if (str.at(found) == '|'){
-			//FIX check for next |
 			if (str.at(found+1) == '|'){
 				pos = found;
 				return 3;
 			}
 			else{
-				cout << "flag: about to recursively call 2" << endl;
 				return check_connect(str,pos,found+1);
 			}
 		}
