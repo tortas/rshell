@@ -1,0 +1,183 @@
+Script started on Sun 19 Apr 2015 10:42:37 PM PDT
+~
+lseeb002@hammer $ cd rshell
+~/rshell
+lseeb002@hammer $ bin/rshell
+lseeb002@hammer.cs.ucr.edu$ #PART 1      Testing simple commands, no parameters
+lseeb002@hammer.cs.ucr.edu$ ls
+bin  hello.cpp	LICENSE  Makefile  README.md  src  tests
+lseeb002@hammer.cs.ucr.edu$ pwd
+/class/classes/lseeb002/rshell
+lseeb002@hammer.cs.ucr.edu$ #Testing no commands
+lseeb002@hammer.cs.ucr.edu$ 
+lseeb002@hammer.cs.ucr.edu$ 
+lseeb002@hammer.cs.ucr.edu$ #Testing simple comma            commands with some parameters
+lseeb002@hammer.cs.ucr.edu$ ls -a     rm    ls
+bin  hello.cpp	LICENSE  Makefile  README.md  src  tests
+lseeb002@hammer.cs.ucr.edu$ rm hello.cpp
+lseeb002@hammer.cs.ucr.edu$ echo hello removed
+hello removed
+lseeb002@hammer.cs.ucr.edu$ touch hello.cpp
+lseeb002@hammer.cs.ucr.edu$ ls -a
+.  ..  bin  .git  hello.cpp  LICENSE  Makefile	README.md  src	tests
+lseeb002@hammer.cs.ucr.edu$ #Testing commands with lots o  f parameters
+lseeb002@hammer.cs.ucr.edu$ echo this rshell is the real deal woohoo        rama damma ding g dong
+this rshell is the real deal rama damma ding dong
+lseeb002@hammer.cs.ucr.edu$ echo this next test will have lots o  f error                                    e next test wit ll havel    lotso      s of errors
+the next test will have lots of errors
+lseeb002@hammer.cs.ucr.edu$ ls ken ksneoc klne               ken slkne ofinaalaksnc lkanvoaid leknsovi eksndockns lkens ke kes k id kelri lske
+ls: cannot access k: No such file or directory
+ls: cannot access ken: No such file or directory
+ls: cannot access slkne: No such file or directory
+ls: cannot access ofinaalaksnc: No such file or directory
+ls: cannot access lkanvoaid: No such file or directory
+ls: cannot access leknsovi: No such file or directory
+ls: cannot access eksndockns: No such file or directory
+ls: cannot access lkens: No such file or directory
+ls: cannot access ke: No such file or directory
+ls: cannot access kes: No such file or directory
+ls: cannot access k: No such file or directory
+ls: cannot access id: No such file or directory
+ls: cannot access kelri: No such file or directory
+ls: cannot access lske: No such file or directory
+lseeb002@hammer.cs.ucr.edu$ #Tst  esting lost  tso f    of p spaces e in between commands and parameters
+lseeb002@hammer.cs.ucr.edu$ ls                              -a
+.  ..  bin  .git  hello.cpp  LICENSE  Makefile	README.md  src	tests
+lseeb002@hammer.cs.ucr.edu$ echo              so                far                     apart
+so far apart
+lseeb002@hammer.cs.ucr.edu$ rm                                                                  rm                       hello.cpp
+lseeb002@hammer.cs.ucr.edu$ #Testing 2 comm      con  hained commands, first fails           both pass            s
+lseeb002@hammer.cs.ucr.edu$ ls;pwd
+bin  LICENSE  Makefile	README.md  src	tests
+/class/classes/lseeb002/rshell
+lseeb002@hammer.cs.ucr.edu$ ls            ; pwd
+bin  LICENSE  Makefile	README.md  src	tests
+/class/classes/lseeb002/rshell
+lseeb002@hammer.cs.ucr.edu$ #Testing chained commands, s    , first fails
+lseeb002@hammer.cs.ucr.edu$ alkne || pwd
+execvp: No such file or directory
+/class/classes/lseeb002/rshell
+lseeb002@hammer.cs.ucr.edu$ ls doesntexis          nonexistan  ent.file ^ && pwd
+ls: cannot access nonexistent.file: No such file or directory
+lseeb002@hammer.cs.ucr.edu$ #Testing chained command, f second      first succeeds
+lseeb002@hammer.cs.ucr.edu$ ls && lnkae 
+bin  LICENSE  Makefile	README.md  src	tests
+execvp: No such file or directory
+lseeb002@hammer.cs.ucr.edu$ pwd || ls
+/class/classes/lseeb002/rshell
+lseeb002@hammer.cs.ucr.edu$ pwd || lkaneoin
+/class/classes/lseeb002/rshell
+lseeb002@hammer.cs.ucr.edu$ #Testing multiple commands chained
+lseeb002@hammer.cs.ucr.edu$ pwd && echo cool!     ; pwd   ls && mkdir t temp &  ; ls || pwd
+/class/classes/lseeb002/rshell
+cool
+bin  LICENSE  Makefile	README.md  src	tests
+bin  LICENSE  Makefile	README.md  src	temp  tests
+lseeb002@hammer.cs.ucr.edu$ rm -rf temp; ls && pwd ; echo did it work || echo no  guess not
+bin  LICENSE  Makefile	README.md  src	tests
+/class/classes/lseeb002/rshell
+did it work
+lseeb002@hammer.cs.ucr.edu$ echo create new file; touch new.cpp && echo now delete  ; rm new.cpp &&   ; echo woohoo
+create new file
+now delete
+woohoo
+lseeb002@hammer.cs.ucr.edu$ ls;     echo check that deletion && ls || pwd   echo failure
+check that deletion
+bin  LICENSE  Makefile	README.md  src	tests
+lseeb002@hammer.cs.ucr.edu$ #Testing operators right next to commands                      and spaces right next to commands
+lseeb002@hammer.cs.ucr.edu$ ls           &&  pwd  ||                echo space
+bin  LICENSE  Makefile	README.md  src	tests
+/class/classes/lseeb002/rshell
+lseeb002@hammer.cs.ucr.edu$ pwd&&echo same old        lots of tests||e pwd
+/class/classes/lseeb002/rshell
+lots of tests
+lseeb002@hammer.cs.ucr.edu$ ls;       pwd&&touch nci  icole.cpp || echo that didnt work
+bin  LICENSE  Makefile	README.md  src	tests
+/class/classes/lseeb002/rshell
+lseeb002@hammer.cs.ucr.edu$ rm nicole         ls; echo chekc  ck nicole out    .cpp  ; rm nicole          rm nicole.cpp && ls   ls;
+bin  LICENSE  Makefile	nicole.cpp  README.md  src  tests
+check nicole.cpp
+bin  LICENSE  Makefile	README.md  src	tests
+lseeb002@hammer.cs.ucr.edu$ #We will now test the exit command
+lseeb002@hammer.cs.ucr.edu$ #To do this we  we will run rshell g again!
+lseeb002@hammer.cs.ucr.edu$ ps
+  PID TTY          TIME CMD
+  811 pts/87   00:00:00 ps
+44951 pts/87   00:00:00 bash
+45046 pts/87   00:00:00 rshell
+lseeb002@hammer.cs.ucr.edu$ #One rshell currently running
+lseeb002@hammer.cs.ucr.edu$ bin/rshell
+lseeb002@hammer.cs.ucr.edu$ ps
+  PID TTY          TIME CMD
+  916 pts/87   00:00:00 rshell
+  917 pts/87   00:00:00 ps
+44951 pts/87   00:00:00 bash
+45046 pts/87   00:00:00 rshell
+lseeb002@hammer.cs.ucr.edu$ #Two rshells running!! Wo hoa!! Mind Blown!!
+lseeb002@hammer.cs.ucr.edu$ #Now let's just try a simple exit command
+lseeb002@hammer.cs.ucr.edu$ exit
+lseeb002@hammer.cs.ucr.edu$ ps
+  PID TTY          TIME CMD
+ 1035 pts/87   00:00:00 ps
+44951 pts/87   00:00:00 bash
+45046 pts/87   00:00:00 rshell
+lseeb002@hammer.cs.ucr.edu$ #It worked! Let' 's run rshell again and try exit with a parameter
+lseeb002@hammer.cs.ucr.edu$ bin/rhs  shell
+lseeb002@hammer.cs.ucr.edu$ ps
+  PID TTY          TIME CMD
+ 1102 pts/87   00:00:00 rshell
+ 1107 pts/87   00:00:00 ps
+44951 pts/87   00:00:00 bash
+45046 pts/87   00:00:00 rshell
+lseeb002@hammer.cs.ucr.edu$ exit fake 
+lseeb002@hammer.cs.ucr.edu$ ps
+  PID TTY          TIME CMD
+ 1164 pts/87   00:00:00 ps
+44951 pts/87   00:00:00 bash
+45046 pts/87   00:00:00 rshell
+lseeb002@hammer.cs.ucr.edu$ #Exit      the e     The exit command will still exit w even with parameters
+lseeb002@hammer.cs.ucr.edu$ #But will the exit command exit        work if it s  s a paramete                                                The exic t command won't work if it's a para ameter if tself
+lseeb002@hammer.cs.ucr.edu$ bin/rshell
+lseeb002@hammer.cs.ucr.edu$ ps
+  PID TTY          TIME CMD
+ 1418 pts/87   00:00:00 rshell
+ 1423 pts/87   00:00:00 ps
+44951 pts/87   00:00:00 bash
+45046 pts/87   00:00:00 rshell
+lseeb002@hammer.cs.ucr.edu$ e ls exit
+ls: cannot access exit: No such file or directory
+lseeb002@hammer.cs.ucr.edu$ ps
+  PID TTY          TIME CMD
+ 1418 pts/87   00:00:00 rshell
+ 1498 pts/87   00:00:00 ps
+44951 pts/87   00:00:00 bash
+45046 pts/87   00:00:00 rshell
+lseeb002@hammer.cs.ucr.edu$ #we wi     We will finish testing exit by using it in a chain
+lseeb002@hammer.cs.ucr.edu$ ls; pwd && echo good  bye second rshell  ; exit
+bin  LICENSE  Makefile	README.md  src	tests
+/class/classes/lseeb002/rshell
+goodbye second rshell
+lseeb002@hammer.cs.ucr.edu$ pw s
+  PID TTY          TIME CMD
+ 1633 pts/87   00:00:00 ps
+44951 pts/87   00:00:00 bash
+45046 pts/87   00:00:00 rshell
+lseeb002@hammer.cs.ucr.edu$ #These comments have been running                                  We've been testing these     way rshell handles comments
+lseeb002@hammer.cs.ucr.edu$ #this who        This whole time! But let's try some    a few more.
+lseeb002@hammer.cs.ucr.edu$ ls  ; echo just a few more tests #every     this is a comment
+bin  LICENSE  Makefile	README.md  src	tests
+just a few more tests
+lseeb002@hammer.cs.ucr.edu$ #This is a comment by itself. Boring!
+lseeb002@hammer.cs.ucr.edu$ #
+lseeb002@hammer.cs.ucr.edu$ ld  ls#this comment c touches a command!
+bin  LICENSE  Makefile	README.md  src	tests
+lseeb002@hammer.cs.ucr.edu$ #I'm all out of tests!!                       pwd; echo goodbye world! #  #
+/class/classes/lseeb002/rshell
+goodbye world!
+lseeb002@hammer.cs.ucr.edu$ ###########3
+lseeb002@hammer.cs.ucr.edu$ exit
+~/rshell
+lseeb002@hammer $ exit
+exit
+
+Script done on Sun 19 Apr 2015 11:04:54 PM PDT

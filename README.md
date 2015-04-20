@@ -4,7 +4,8 @@ rshell is a simplified version of the bash command shell.
 
 ###GENERAL USAGE:
 
-Commands should have the form:
+
+Commands are executed from left to right and should have the form:
 ```
 cmd			 =     executable   [argumentList] [connector]
 connector    =   || or && or ;	
