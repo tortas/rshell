@@ -2,15 +2,14 @@
 
 rshell is a simplified version of the bash command shell. 
 
-=================================================================================================
-##GENERAL USAGE:
+###GENERAL USAGE:
 -------------------
 
 Commands should have the form:
-	```
-	cmd			 =     executable   [argumentList] [connector]
-	connector    =   || or && or ;
-	```
+```
+cmd			 =     executable   [argumentList] [connector]
+connector    =   || or && or ;	
+```
 where `executable` is an executable program in the `PATH` and `argumentList` is a list of zero or 
 more arguments separated by spaces. Connectors allow you to run multiple commands at once.
 	If a command is followed by `;`, then the next command is always executed;
@@ -30,9 +29,8 @@ echo hello
 
 Anything after a `#` is considered a comment and will be disregarded by the shell.
 
-=================================================================================================
 
-##INSTALLATION
+###INSTALLATION
 This program can only be run by machines running Linux. From your working directory run the following commands:
 ```
 $ git clone  https://github.com/tortas/rshell.git
@@ -42,9 +40,7 @@ $ make
 $ bin/rshell
 ```
 
-=================================================================================================
-	
-##BUGS
+###BUGS
 rshell contains the following bugs:
 	1. rshell does not support any sort of input redirection
 	2. rshell will not continue execution if it encounters unknown connectors (i.e. `&&&` or `|||`)
