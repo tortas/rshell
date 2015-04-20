@@ -41,6 +41,7 @@ $ bin/rshell
 
 ###BUGS
 rshell contains the following bugs:
+
 1. rshell does not support any sort of input redirection
 2. rshell will not continue execution if it encounters unknown connectors (i.e. `&&&` or `|||`)
 3. rshell disregards singular `&` and `|` connectors which may cause errors
