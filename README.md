@@ -3,7 +3,6 @@
 rshell is a simplified version of the bash command shell. 
 
 ###GENERAL USAGE:
--------------------
 
 Commands should have the form:
 ```
@@ -47,5 +46,4 @@ rshell contains the following bugs:
 	3. rshell disregards singular `&` and `|` connectors which may cause errors
 
 Any other bugs should be posted as an issue in the github repository:
-	`https://github.com/tortas/rshell.git`
-=================================================================================================
+	``https://github.com/tortas/rshell.git``
