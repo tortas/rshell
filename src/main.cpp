@@ -11,6 +11,7 @@
 
 using namespace std;
 	
+//Function that parses a passed in string and executes the command it yields
 bool parse_exec(string usrString, int size){
 	int status;
 	char **args = new char*[size+1];
@@ -28,9 +29,6 @@ bool parse_exec(string usrString, int size){
 		return false;
 	}
 	args[cnt] = NULL;
-	for(int i = 0; i < cnt; i++){
-		cout << args[i] << endl;
-	}
 
 	if (!strcmp(args[0],"exit")){
 		exit(0);
@@ -108,18 +106,31 @@ int check_connect(const string& str, int& pos, int start){
 int main()
 {
 	//Get User Info
-	
+	string hostname;
+	string username = getlogin();
+	if(getlogin() == NULL){
+		perror("login");
+		username = "UNKNOWN";
+	}
+	char host_temp[64];
+	if(gethostname(host_temp,64) == -1){
+		perror("hostname");
+		hostname = "UNKNOWN";
+	}
+	else{
+		hostname = host_temp;
+	}
 
 
 	while(1){
 		//Get User Input
-		bool exec_stat = true;		//Connector Status
-		int con_stat = 0;
-		int pos = 0;
-		int start = 0;
-		int size = 0;
-		string usrString;
-		cout << "$ ";
+		bool exec_stat = true;		//Execution Status
+		int con_stat = 0;			//Connector Status
+		int pos = 0;				//Position of Connector
+		int start = 0;				//Start position for parse function
+		int size = 0;				//Size of user input
+		string usrString;			//User Input String
+		cout << username << "@" << hostname << "$ ";
 		getline(cin,usrString); size = usrString.size();
 		if (size == 0){
 			continue;
@@ -133,11 +144,15 @@ int main()
 			if (con_stat == -1){
 				exec_stat = parse_exec(usrString.substr(start),size);
 				break;
+				//If -1 there are no more connectors in the string so
+				//execute and break for more input
 			}
 			else if (con_stat == 1){
 				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
 				start = pos + 1;
 				continue;
+				//Semi-colon encountered so execute and continue with 
+				//the rest of command line
 			}
 			else if (con_stat == 2){
 				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
@@ -148,6 +163,9 @@ int main()
 				else{
 					break;
 				}
+				//AND connector encountered so execute and check it's exit status
+				//If success then continue with command line
+				//Else break for more input
 			}
 			else if (con_stat == 3){
 				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
@@ -158,10 +176,15 @@ int main()
 				else{
 					continue;
 				}
+				//OR connector encountered so execute and check it's exit status
+				//If success then break for more input
+				//Else continue with command line
 			}
 			else if (con_stat == 4){
 				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
 				break;
+				//COMMENT encountered so execute everything before and break
+				//for more input
 			}
 		}
 	}

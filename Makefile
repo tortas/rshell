@@ -1,4 +1,5 @@
-all: 
-	g++ --std=c++11 -Wall -Werror -ansi -pedantic src/main.cpp -o rshell
+all: rshell
+
 rshell: 
-	g++ --std=c++11 -Wall -Werror -ansi -pedantic src/main.cpp -o rshell
+	mkdir bin
+	g++ --std=c++11 -Wall -Werror -ansi -pedantic src/main.cpp -o bin/rshell
