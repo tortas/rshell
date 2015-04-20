@@ -24,6 +24,9 @@ bool parse_exec(string usrString, int size){
 		++cnt;
 		temp = strtok(NULL, " &|");
 	}
+	if (cnt == 0){
+		return false;
+	}
 	args[cnt] = NULL;
 	for(int i = 0; i < cnt; i++){
 		cout << args[i] << endl;
@@ -40,8 +43,8 @@ bool parse_exec(string usrString, int size){
 	else if(pid == 0){
 		if (execvp(args[0],args) == -1){
 			perror("execvp");
+			exit(1);
 		}
-		exit(0);
 	}
 	else if(pid > 0){
 		if(-1 == wait(&status)){
@@ -51,15 +54,14 @@ bool parse_exec(string usrString, int size){
 
 	delete[] cstr;
 	delete[] args;
-
-	if(WIFEXITED(status) != 0){
-		cout << "Success!" << endl;
+	
+	if(WEXITSTATUS(status) == 0){
 		return true;
 	}
 	else{
-		cout << "Failure!" << endl;
 		return false;
 	}
+	return false;
 } 
 
 //Function checks for connectors and returns a number based on which one is found
@@ -126,18 +128,19 @@ int main()
 
 		//Check Connectors
 		while(1){
+			exec_stat = false;
 			con_stat = check_connect(usrString,pos,start);
 			if (con_stat == -1){
 				exec_stat = parse_exec(usrString.substr(start),size);
 				break;
 			}
 			else if (con_stat == 1){
-				exec_stat = parse_exec(usrString.substr(start,pos), size);
+				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
 				start = pos + 1;
 				continue;
 			}
 			else if (con_stat == 2){
-				exec_stat = parse_exec(usrString.substr(start,pos), size);
+				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
 				start = pos + 2;
 				if (exec_stat == true){
 					continue;
@@ -147,7 +150,7 @@ int main()
 				}
 			}
 			else if (con_stat == 3){
-				exec_stat = parse_exec(usrString.substr(start,pos), size);
+				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
 				start = pos + 2;
 				if (exec_stat == true){
 					break;
@@ -157,7 +160,7 @@ int main()
 				}
 			}
 			else if (con_stat == 4){
-				exec_stat = parse_exec(usrString.substr(start,pos), size);
+				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
 				break;
 			}
 		}
@@ -165,46 +168,5 @@ int main()
 		return 0;
 
 }
-	//	while (pos != -1){	
-	//		//Parsing and Executing Section
-	//		char **args = new char*[usrString.length()+1];
-	//		char *cstr = new char[usrString.length()+1];
-	//		strcpy(cstr,usrString.c_str());
-	//		char *temp = strtok(cstr, " &|");
-	//		int cnt = 0;                                
-	//		                                            
-	//		while (temp != 0){                          
-	//			args[cnt] = temp;                       
-	//			++cnt;                                  
-	//			temp = strtok(NULL, " &|");             
-	//		}                                           
-	//		args[cnt] = NULL;                           
-	//		for(int i = 0; i < cnt; i++){               
-	//			cout << args[i] << endl;                
-	//		}                                           
-	//			
-	//		//Execution
-	//		if(!strcmp(args[0], safe_word)){		//Check for exit command
-	//			exit(0);
-	//		}
-	//	
-	//		int pid = fork();
-	//		 if (pid == -1){
-	//			perror("fork");
-	//		}
-	//		else if (pid == 0){
-	//			if(execvp(args[0],args) == -1){
-	//				perror("execvp");
-	//			}
-	//			exit(0);
-	//		}
-	//		else if(pid > 0){
-	//			if(wait(0) == -1){
-	//				perror("wait");
-	//			}
-	//		}
-	//		
-	//
-	//		delete[] cstr;                              
-	//		delete[] args;
-	//		}
+	
+	
