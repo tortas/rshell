@@ -224,6 +224,7 @@ int main( int argc, char* argv[])
 			maxsize /= 10;
 		} while (maxsize);
 		
+		cout << "total " << totalBlks << endl;
 		for (cnt = 0; cnt < vfI.size(); cnt++)
 		{
 			struct fileInfo f = vfI.at(cnt);
