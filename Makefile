@@ -1,5 +1,16 @@
-all: rshell
+CXX = g++
+FLAGS = -Wall -Werror -pedantic
 
-rshell: 
+all: rshell ls
+
+rshell: bin 
+	$(CXX) $(FLAGS) src/main.cpp -o bin/rshell
+
+ls: bin
+	$(CXX) $(FLAGS) src/ls.cpp -o bin/ls
+
+bin:
 	mkdir bin
-	g++ --std=c++11 -Wall -Werror -ansi -pedantic src/main.cpp -o bin/rshell
+
+clean:
+	rm -rf bin/

@@ -85,7 +85,7 @@ void read_cdir (vector<string> &f_names)
 
 int main( int argc, char* argv[])
 {
-	bool a_flag=false, l_flag=false, R_flag=false;
+	bool a_flag=false, l_flag=false;
 	vector<string> f_names;
 	vector<string> args(argv, argv+argc);
 	vector<string> files;
@@ -131,25 +131,10 @@ int main( int argc, char* argv[])
 			if( temp2 == 'a' )
 			{
 				a_flag = true;
-				if(a_flag){
-                	cout << "a found" << endl;
-                }
-
 			}
 			else if( temp2 == 'l' )
 			{
 				l_flag = true;
-				if(l_flag){
-					cout << "l found" << endl;
-				}
-			}
-			else if( temp2 == 'R' )
-			{
-				R_flag = true;
-				if(R_flag){
-                	cout << "R found" << endl;
-                }
-
 			}
 			else
 			{
@@ -203,7 +188,6 @@ int main( int argc, char* argv[])
 			fsizes.push_back(sb.st_size);
 			fI.fname = f_names.at(cnt); 
 			totalBlks += sb.st_blocks;
-
 			char buffer[80];
 			struct tm* timeinfo = localtime(&sb.st_mtime);
 
@@ -224,15 +208,30 @@ int main( int argc, char* argv[])
 			maxsize /= 10;
 		} while (maxsize);
 		
-		cout << "total " << totalBlks << endl;
+		cout << "total " << totalBlks/2 << endl;
 		for (cnt = 0; cnt < vfI.size(); cnt++)
 		{
 			struct fileInfo f = vfI.at(cnt);
-			cout << f.fperm << " " << setw(lnk_dig) << right;
-			cout << f.lnks << " " << f.usr << " " << f.grp << " ";
-			cout << setw(sz_dig) << right << f.sz << " " << f.date_time;
-			cout << " " << f.fname << endl;
+			if ((!a_flag) && (f.fname.at(0) == '.'))
+			{
+				continue;
+			}
+			else 
+			{
+				cout << f.fperm << " " << setw(lnk_dig) << right;
+                cout << f.lnks << " " << f.usr << " " << f.grp << " ";
+                cout << setw(sz_dig) << right << f.sz << " " << f.date_time;
+                cout << " " << f.fname << endl;
+            }
 		}
+	}
+	else if(a_flag)
+	{
+		for (unsigned cnt = 0; cnt < f_names.size(); cnt++)
+		{
+			cout << f_names.at(cnt) << "  ";
+		}
+		cout << endl;
 	}
 
 
