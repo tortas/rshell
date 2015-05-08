@@ -1,0 +1,121 @@
+Script started on Fri 01 May 2015 09:10:52 PM PDT
+~
+lseeb002@hammer $ cd rshell
+~/rshell
+lseeb002@hammer $ #Testing ls by itself
+~/rshell
+lseeb002@hammer $ bin/ls
+bin  LICENSE  Makefile  README.md  src  tests  
+~/rshell
+lseeb002@hammer $ #testing ls with -a flag
+~/rshell
+lseeb002@hammer $ bin/ls -a
+.  ..  .git  bin  LICENSE  Makefile  README.md  src  tests  
+~/rshell
+lseeb002@hammer $ #Testing ls with -l flag
+~/rshell
+lseeb002@hammer $ bin/ls -l
+total 36
+drwx------  2 lseeb002 classes 4096 May 01 20:56 bin
+-rw-------  1 lseeb002 classes 1471 Apr 12 15:55 LICENSE
+-rw-------  1 lseeb002 classes  201 May 01 20:45 Makefile
+-rw-------  1 lseeb002 classes 1518 Apr 19 23:01 README.md
+drwx------  2 lseeb002 classes 4096 May 01 20:45 src
+drwx------  2 lseeb002 classes 4096 May 01 21:04 tests
+~/rshell
+lseeb002@hammer $ #Combining -l and -a parameters
+~/rshell
+lseeb002@hammer $ bin/ls -l -a
+do_ypcall: clnt_call: RPC: Unable to send; errno = Operation not permitted
+total 36
+drwx------  6 lseeb002 classes 4096 May 01 20:57 .
+drwx------ 27 lseeb002 classes 4096 May 01 20:38 ..
+drwx------  8 lseeb002 classes 4096 May 01 20:46 .git
+drwx------  2 lseeb002 classes 4096 May 01 20:56 bin
+-rw-------  1 lseeb002 classes 1471 Apr 12 15:55 LICENSE
+-rw-------  1 lseeb002 classes  201 May 01 20:45 Makefile
+-rw-------  1 lseeb002 classes 1518 Apr 19 23:01 README.md
+drwx------  2 lseeb002 classes 4096 May 01 20:45 src
+drwx------  2 lseeb002 classes 4096 May 01 21:04 tests
+~/rshell
+lseeb002@hammer $ bin/ls -a -l
+do_ypcall: clnt_call: RPC: Unable to send; errno = Operation not permitted
+do_ypcall: clnt_call: RPC: Unable to send; errno = Operation not permitted
+total 36
+drwx------  6 lseeb002 classes 4096 May 01 20:57 .
+drwx------ 27 lseeb002 classes 4096 May 01 20:38 ..
+drwx------  8 lseeb002 classes 4096 May 01 20:46 .git
+drwx------  2 lseeb002 classes 4096 May 01 20:56 bin
+-rw-------  1 lseeb002 classes 1471 Apr 12 15:55 LICENSE
+-rw-------  1 lseeb002 classes  201 May 01 20:45 Makefile
+-rw-------  1 lseeb002 classes 1518 Apr 19 23:01 README.md
+drwx------  2 lseeb002 classes 4096 May 01 20:45 src
+drwx------  2 lseeb002 classes 4096 May 01 21:04 tests
+~/rshell
+lseeb002@hammer $ bin/ls -al
+do_ypcall: clnt_call: RPC: Unable to send; errno = Operation not permitted
+do_ypcall: clnt_call: RPC: Unable to send; errno = Operation not permitted
+total 36
+drwx------  6 lseeb002 classes 4096 May 01 20:57 .
+drwx------ 27 lseeb002 classes 4096 May 01 20:38 ..
+drwx------  8 lseeb002 classes 4096 May 01 20:46 .git
+drwx------  2 lseeb002 classes 4096 May 01 20:56 bin
+-rw-------  1 lseeb002 classes 1471 Apr 12 15:55 LICENSE
+-rw-------  1 lseeb002 classes  201 May 01 20:45 Makefile
+-rw-------  1 lseeb002 classes 1518 Apr 19 23:01 README.md
+drwx------  2 lseeb002 classes 4096 May 01 20:45 src
+drwx------  2 lseeb002 classes 4096 May 01 21:04 tests
+~/rshell
+lseeb002@hammer $ bin/ls -la
+do_ypcall: clnt_call: RPC: Unable to send; errno = Operation not permitted
+do_ypcall: clnt_call: RPC: Unable to send; errno = Operation not permitted
+total 36
+drwx------  6 lseeb002 classes 4096 May 01 20:57 .
+drwx------ 27 lseeb002 classes 4096 May 01 20:38 ..
+drwx------  8 lseeb002 classes 4096 May 01 20:46 .git
+drwx------  2 lseeb002 classes 4096 May 01 20:56 bin
+-rw-------  1 lseeb002 classes 1471 Apr 12 15:55 LICENSE
+-rw-------  1 lseeb002 classes  201 May 01 20:45 Makefile
+-rw-------  1 lseeb002 classes 1518 Apr 19 23:01 README.md
+drwx------  2 lseeb002 classes 4096 May 01 20:45 src
+drwx------  2 lseeb002 classes 4096 May 01 21:04 tests
+~/rshell
+lseeb002@hammer $ bin/ls -a          -la
+do_ypcall: clnt_call: RPC: Unable to send; errno = Operation not permitted
+total 36
+drwx------  6 lseeb002 classes 4096 May 01 20:57 .
+drwx------ 27 lseeb002 classes 4096 May 01 20:38 ..
+drwx------  8 lseeb002 classes 4096 May 01 20:46 .git
+drwx------  2 lseeb002 classes 4096 May 01 20:56 bin
+-rw-------  1 lseeb002 classes 1471 Apr 12 15:55 LICENSE
+-rw-------  1 lseeb002 classes  201 May 01 20:45 Makefile
+-rw-------  1 lseeb002 classes 1518 Apr 19 23:01 README.md
+drwx------  2 lseeb002 classes 4096 May 01 20:45 src
+drwx------  2 lseeb002 classes 4096 May 01 21:04 tests
+~/rshell
+lseeb002@hammer $ bin [K/ls -alalalalal
+total 36
+drwx------  6 lseeb002 classes 4096 May 01 20:57 .
+drwx------ 27 lseeb002 classes 4096 May 01 20:38 ..
+drwx------  8 lseeb002 classes 4096 May 01 20:46 .git
+drwx------  2 lseeb002 classes 4096 May 01 20:56 bin
+-rw-------  1 lseeb002 classes 1471 Apr 12 15:55 LICENSE
+-rw-------  1 lseeb002 classes  201 May 01 20:45 Makefile
+-rw-------  1 lseeb002 classes 1518 Apr 19 23:01 README.md
+drwx------  2 lseeb002 classes 4096 May 01 20:45 src
+drwx------  2 lseeb002 classes 4096 May 01 21:04 tests
+~/rshell
+lseeb002@hammer $ #The -a and -l flags are thte only ones that work
+~/rshell
+lseeb002@hammer $ #My ls does not recognize any other flags 
+~/rshell
+lseeb002@hammer $ bin/ls -f
+ls: invalid option -- 'f'
+~/rshell
+lseeb002@hammer $ bin/ls -laf
+ls: invalid option -- 'f'
+~/rshell
+lseeb002@hammer $ #[Kexit
+exit
+
+Script done on Fri 01 May 2015 09:15:15 PM PDT
