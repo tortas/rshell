@@ -10,6 +10,84 @@
 #include <vector>
 
 using namespace std;
+
+int check_input(string usrString)
+{
+	if (usrString.find("&&") != string::npos ||
+
+int parse_pipe(string usrString, int size)
+{
+	int pipefd[2];
+	int pid;
+
+	char **args = new char*[size+1];
+	char *cstr = new char[size+1];
+	strcpy(cstr,usrString.c_str());
+	char *temp = strtok(cstr, " ")'
+	int cnt = 0;
+
+	while (temp != 0)
+	{
+		args[cnt] = temp;
+		++cnt; 
+		temp = strtok(NULL, " ");
+	}
+	if (cnt == 0)
+	{
+		cout << "syntax error: missing cmd for pipe" << endl;
+		return -1;
+	}
+	args[cnt] = NULL;
+
+	if (-1 == (pipe(pipefd))){
+		perror("pipe");
+		exit(1);
+	}
+
+	if (-1 == (pid = fork()))
+	{
+		perror("fork");
+		exit(1);
+	}
+
+	if (pid == 0)
+	{
+		if (-1 == close(1))
+		{
+			perror("close");
+			exit(1);
+		}
+		if (-1 == dup(fd[1]))
+		{
+			perror("dup");
+			exit(1);
+		}
+		if (-1 == execvp(args[0],args))
+		{
+			perror("exec");
+			exit(1);
+		}
+	}
+	else if (pid > 0)
+	{
+		if (-1 == close(0))
+        {
+        	perror("close");
+        	exit(1);
+        }
+
+		if (-1 == dup(fd[0])) 		
+        {
+        	perror("dup");
+        	exit(1);
+        }
+
+		if (-1 == (1))
+        {
+        	perror("close");
+        	exit(1);
+        }
+
 	
 //Function that parses a passed in string and executes the command it yields
 bool parse_exec(string usrString, int size){
@@ -92,12 +170,28 @@ int check_connect(const string& str, int& pos, int start){
 				return 3;
 			}
 			else{
-				return check_connect(str,pos,found+1);
+				return 5; 
 			}
 		}
 		else if (str.at(found) == '#'){
 			pos = found;
 			return 4;
+		}
+		else if (str.at(found) == '>'){
+			if (str.at(found+1) == '>'){
+				if (str.at(found+2) == '>'){
+					return 6;		//'>>>' found
+				}
+				else{
+					return 7;		//'>>' found
+				}
+			}
+			else{
+				return 8;			//'>' found
+			}
+		}
+		else if (str.at(found) == '<'){
+			return 9;				//'<' found
 		}
 	}
 	return -1;
@@ -135,56 +229,63 @@ int main()
 		if (size == 0){
 			continue;
 		}
-		
 
-		//Check Connectors
-		while(1){
-			exec_stat = false;
-			con_stat = check_connect(usrString,pos,start);
-			if (con_stat == -1){
-				exec_stat = parse_exec(usrString.substr(start),size);
-				break;
-				//If -1 there are no more connectors in the string so
-				//execute and break for more input
-			}
-			else if (con_stat == 1){
-				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
-				start = pos + 1;
-				continue;
-				//Semi-colon encountered so execute and continue with 
-				//the rest of command line
-			}
-			else if (con_stat == 2){
-				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
-				start = pos + 2;
-				if (exec_stat == true){
-					continue;
-				}
-				else{
+		if (check_input)
+		{
+			parse_pipe(usrString);
+		}
+
+		else
+		{
+			//Check Connectors
+			while(1){
+				exec_stat = false;
+				con_stat = check_connect(usrString,pos,start);
+				if (con_stat == -1){
+					exec_stat = parse_exec(usrString.substr(start),size);
 					break;
+					//If -1 there are no more connectors in the string so
+					//execute and break for more input
 				}
-				//AND connector encountered so execute and check it's exit status
-				//If success then continue with command line
-				//Else break for more input
-			}
-			else if (con_stat == 3){
-				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
-				start = pos + 2;
-				if (exec_stat == true){
-					break;
-				}
-				else{
+				else if (con_stat == 1){
+					exec_stat = parse_exec(usrString.substr(start,pos-start), size);
+					start = pos + 1;
 					continue;
+					//Semi-colon encountered so execute and continue with 
+					//the rest of command line
 				}
-				//OR connector encountered so execute and check it's exit status
-				//If success then break for more input
-				//Else continue with command line
-			}
-			else if (con_stat == 4){
-				exec_stat = parse_exec(usrString.substr(start,pos-start), size);
-				break;
-				//COMMENT encountered so execute everything before and break
-				//for more input
+				else if (con_stat == 2){
+					exec_stat = parse_exec(usrString.substr(start,pos-start), size);
+					start = pos + 2;
+					if (exec_stat == true){
+						continue;
+					}
+					else{
+						break;
+					}
+					//AND connector encountered so execute and check it's exit status
+					//If success then continue with command line
+					//Else break for more input
+				}
+				else if (con_stat == 3){
+					exec_stat = parse_exec(usrString.substr(start,pos-start), size);
+					start = pos + 2;
+					if (exec_stat == true){
+						break;
+					}
+					else{
+						continue;
+					}
+					//OR connector encountered so execute and check it's exit status
+					//If success then break for more input
+					//Else continue with command line
+				}
+				else if (con_stat == 4){
+					exec_stat = parse_exec(usrString.substr(start,pos-start), size);
+					break;
+					//COMMENT encountered so execute everything before and break
+					//for more input
+				}
 			}
 		}
 	}
