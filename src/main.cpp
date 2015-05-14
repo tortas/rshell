@@ -14,7 +14,19 @@ using namespace std;
 int check_input(string usrString)
 {
 	if (usrString.find("&&") != string::npos ||
-
+		usrString.find("||") != string::npos ||
+		usrString.find(";") != string::npos ||
+		usrString.find("#") != string::npos)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+	return -1;
+}
+/*
 int parse_pipe(string usrString, int size)
 {
 	int pipefd[2];
@@ -87,7 +99,7 @@ int parse_pipe(string usrString, int size)
         	perror("close");
         	exit(1);
         }
-
+*/
 	
 //Function that parses a passed in string and executes the command it yields
 bool parse_exec(string usrString, int size){
@@ -177,22 +189,6 @@ int check_connect(const string& str, int& pos, int start){
 			pos = found;
 			return 4;
 		}
-		else if (str.at(found) == '>'){
-			if (str.at(found+1) == '>'){
-				if (str.at(found+2) == '>'){
-					return 6;		//'>>>' found
-				}
-				else{
-					return 7;		//'>>' found
-				}
-			}
-			else{
-				return 8;			//'>' found
-			}
-		}
-		else if (str.at(found) == '<'){
-			return 9;				//'<' found
-		}
 	}
 	return -1;
 }
@@ -230,9 +226,11 @@ int main()
 			continue;
 		}
 
-		if (check_input)
+		if (1 == check_input(usrString))
 		{
-			parse_pipe(usrString);
+			cout << "didn't find connectors. start piping" << endl;
+			//parse_pipe(usrString);
+			return 0;
 		}
 
 		else
