@@ -1,4 +1,6 @@
 #include <string.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/tokenizer.hpp>
 #include <stdlib.h>
 #include <iostream>
 #include <unistd.h>
@@ -9,6 +11,7 @@
 #include <errno.h>
 #include <vector>
 
+using namespace boost;
 using namespace std;
 
 int check_input(string usrString)
@@ -26,6 +29,77 @@ int check_input(string usrString)
 	}
 	return -1;
 }
+
+bool popv(string usrString, vector<string> &iop, vector<vector<string> > &cmds)
+{
+	typedef tokenizer<char_separator<char> > tokenizer;
+	char_separator<char> sep(" ", "<>|", drop_empty_tokens);
+	tokenizer tokens(usrString, sep);
+	int cnt = 0;
+	bool first = true;
+	for (auto it = tokens.begin(); it != tokens.end(); ++it)
+	{
+		if(*it == "|" || *it == "<")
+		{
+			first = true;
+			iop.push_back(*it);
+			++cnt;
+			continue;
+		}
+		else if(*it == ">")
+		{
+			if(iop.empty())
+            {
+            	first = true;
+            	iop.push_back(*it);
+            	++cnt;
+            	continue;
+            }
+
+			else if (iop.at(iop.size()-1) == ">")
+			{
+				first = true;
+				iop.at(iop.size()-1).append(">");
+				continue;
+			}
+		}
+		else
+		{
+			if(first)
+			{
+				first = false;
+				vector<string> temp;
+				temp.push_back(*it);
+				cmds.push_back(temp);
+			}
+			else
+			{
+				cmds.at(cnt).push_back(*it);
+			}
+		}
+
+	}
+
+	//Print check
+	cout << "cmds: ";
+	for (size_t i = 0; i < cmds.size(); ++i)
+	{
+		for(size_t j = 0; j < cmds.at(i).size(); ++j)
+		{
+			cout << cmds.at(i).at(j) << " ";
+		}
+	}
+	cout << endl;
+	
+	cout << "iop: ";
+	for (size_t n = 0; n < iop.size(); ++n)
+	{
+		cout << iop.at(n) << " ";
+	}
+	cout << endl;
+	return true;
+}
+
 /*
 int parse_pipe(string usrString, int size)
 {
@@ -35,7 +109,7 @@ int parse_pipe(string usrString, int size)
 	char **args = new char*[size+1];
 	char *cstr = new char[size+1];
 	strcpy(cstr,usrString.c_str());
-	char *temp = strtok(cstr, " ")'
+	char *temp = strtok(cstr, " ");
 	int cnt = 0;
 
 	while (temp != 0)
@@ -102,7 +176,8 @@ int parse_pipe(string usrString, int size)
 */
 	
 //Function that parses a passed in string and executes the command it yields
-bool parse_exec(string usrString, int size){
+bool parse_exec(string usrString, int size)
+{
 	int status;
 	char **args = new char*[size+1];
 	char *cstr = new char[size+1];
@@ -220,6 +295,8 @@ int main()
 		int start = 0;				//Start position for parse function
 		int size = 0;				//Size of user input
 		string usrString;			//User Input String
+		vector<string> iop;
+		vector<vector<string> > cmds;
 		cout << username << "@" << hostname << "$ ";
 		getline(cin,usrString); size = usrString.size();
 		if (size == 0){
@@ -229,7 +306,11 @@ int main()
 		if (1 == check_input(usrString))
 		{
 			cout << "didn't find connectors. start piping" << endl;
-			//parse_pipe(usrString);
+			iop.clear(); cmds.clear();
+			if(popv(usrString,iop,cmds))
+			{
+				cout << "YES!" << endl;
+			}
 			return 0;
 		}
 
@@ -287,7 +368,7 @@ int main()
 			}
 		}
 	}
-		return 0;
+	return 0;
 
 }
 	
