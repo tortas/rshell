@@ -62,6 +62,12 @@ bool popv(string usrString, vector<string> &iop, vector<vector<string> > &cmds)
 				iop.at(iop.size()-1).append(">");
 				continue;
 			}
+			else
+			{
+				first = true;
+				iop.push_back(*it);
+				++cnt;
+			}
 		}
 		else
 		{
