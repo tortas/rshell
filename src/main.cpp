@@ -1,4 +1,7 @@
 #include <string.h>
+#include <fcntl.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/tokenizer.hpp>
 #include <stdlib.h>
 #include <iostream>
 #include <unistd.h>
@@ -9,6 +12,7 @@
 #include <errno.h>
 #include <vector>
 
+using namespace boost;
 using namespace std;
 
 int check_input(string usrString)
@@ -16,93 +20,102 @@ int check_input(string usrString)
 	if (usrString.find("&&") != string::npos ||
 		usrString.find("||") != string::npos ||
 		usrString.find(";") != string::npos ||
-		usrString.find("#") != string::npos)
-	{
-		return 0;
-	}
+		usrString.find("#") != string::npos ||
+		(usrString.find(">") == string::npos &&
+		usrString.find("<") == string::npos &&
+		usrString.find("|") == string::npos))
+		{
+			return 0;
+		}
 	else
 	{
 		return 1;
 	}
 	return -1;
 }
-/*
-int parse_pipe(string usrString, int size)
+
+bool popv(string usrString, vector<string> &iop, vector<vector<string> > &cmds)
 {
-	int pipefd[2];
-	int pid;
-
-	char **args = new char*[size+1];
-	char *cstr = new char[size+1];
-	strcpy(cstr,usrString.c_str());
-	char *temp = strtok(cstr, " ")'
+	typedef tokenizer<char_separator<char> > tokenizer;
+	char_separator<char> sep(" ", "<>|", drop_empty_tokens);
+	tokenizer tokens(usrString, sep);
 	int cnt = 0;
-
-	while (temp != 0)
+	bool first = true;
+	for (auto it = tokens.begin(); it != tokens.end(); ++it)
 	{
-		args[cnt] = temp;
-		++cnt; 
-		temp = strtok(NULL, " ");
-	}
-	if (cnt == 0)
-	{
-		cout << "syntax error: missing cmd for pipe" << endl;
-		return -1;
-	}
-	args[cnt] = NULL;
-
-	if (-1 == (pipe(pipefd))){
-		perror("pipe");
-		exit(1);
-	}
-
-	if (-1 == (pid = fork()))
-	{
-		perror("fork");
-		exit(1);
-	}
-
-	if (pid == 0)
-	{
-		if (-1 == close(1))
+		if(*it == "|" || *it == "<")
 		{
-			perror("close");
-			exit(1);
+			first = true;
+			iop.push_back(*it);
+			++cnt;
+			continue;
 		}
-		if (-1 == dup(fd[1]))
+		else if(*it == ">")
 		{
-			perror("dup");
-			exit(1);
+			if(iop.empty())
+            {
+            	first = true;
+            	iop.push_back(*it);
+            	++cnt;
+            	continue;
+            }
+
+			else if (iop.at(iop.size()-1) == ">")
+			{
+				first = true;
+				iop.at(iop.size()-1).append(">");
+				continue;
+			}
+			else
+			{
+				first = true;
+				iop.push_back(*it);
+				++cnt;
+			}
 		}
-		if (-1 == execvp(args[0],args))
+		else
 		{
-			perror("exec");
-			exit(1);
+			if(first)
+			{
+				first = false;
+				vector<string> temp;
+				temp.push_back(*it);
+				cmds.push_back(temp);
+			}
+			else
+			{
+				cmds.at(cnt).push_back(*it);
+			}
+		}
+
+	}
+
+	//Print check
+	/*
+	cout << "cmds: ";
+	for (size_t i = 0; i < cmds.size(); ++i)
+	{
+		for(size_t j = 0; j < cmds.at(i).size(); ++j)
+		{
+			cout << cmds.at(i).at(j) << " ";
 		}
 	}
-	else if (pid > 0)
+	cout << endl;
+	
+	cout << "iop: ";
+	for (size_t n = 0; n < iop.size(); ++n)
 	{
-		if (-1 == close(0))
-        {
-        	perror("close");
-        	exit(1);
-        }
+		cout << iop.at(n) << " ";
+	}
+	cout << endl;
+	*/
+	return true;
+}
 
-		if (-1 == dup(fd[0])) 		
-        {
-        	perror("dup");
-        	exit(1);
-        }
-
-		if (-1 == (1))
-        {
-        	perror("close");
-        	exit(1);
-        }
-*/
 	
 //Function that parses a passed in string and executes the command it yields
-bool parse_exec(string usrString, int size){
+bool parse_exec(string usrString, int size)
+{
 	int status;
 	char **args = new char*[size+1];
 	char *cstr = new char[size+1];
@@ -116,6 +129,8 @@ bool parse_exec(string usrString, int size){
 		temp = strtok(NULL, " &|");
 	}
 	if (cnt == 0){
+		delete[] cstr;
+		delete[] args;
 		return false;
 	}
 	args[cnt] = NULL;
@@ -193,6 +208,106 @@ int check_connect(const string& str, int& pos, int start){
 	return -1;
 }
 
+void my_close(int fd)
+{
+	if (-1 == close(fd))
+	{
+		perror("close");
+	}
+}
+void redirect(int oldf, int newf)
+{
+	if (oldf != newf)
+	{
+		if (-1 == dup2(oldf,newf))
+		{
+			perror("dup2");
+		}
+		else
+		{
+			my_close(oldf);
+		}
+	}
+}
+
+void execute(vector<string> cmd, int in, int out)
+{
+	redirect(in, STDIN_FILENO);
+	redirect(out, STDOUT_FILENO);
+
+	int n = cmd.size();
+	int i;
+	const char **args = new const char*[ n+1 ];
+	for (i = 0; i < n; ++i)
+	{
+		args[i] = cmd.at(i).c_str();
+	}
+	args[i] = NULL;
+
+	execvp(args[0], (char * const*)args);
+	perror("execvp");
+	exit(1);
+}
+
+void in_redir(vector<string> cmd, string file, int out, int cnt)
+{
+	my_close(0);
+	open(file.c_str(), O_RDWR);
+	size_t i;
+	const char **args = new const char*[cmd.size()+1];
+	for (i = 0; i < cmd.size(); ++i)
+	{
+		args[i] = cmd.at(i).c_str();
+	}
+	args[i] = NULL;
+	if ( cnt > 0 )
+	{
+		redirect(out,STDOUT_FILENO);
+	}
+	if(-1 == execvp(args[0], (char * const*)args))
+	{
+		perror("execvp");
+		exit(1);
+	}
+}
+
+void out1_redir(vector<string> cmd, string file, int out, int save_out)
+{
+	int out2;
+	if (-1 == (out2 = open(file.c_str(), O_WRONLY | O_CREAT | O_TRUNC)))
+	{
+		perror("open");
+		exit(1);
+	}
+	size_t i;
+	const char **args = new const char*[cmd.size()+1];
+	for (i = 0; i < cmd.size(); ++i)
+	{
+		args[i] = cmd.at(i).c_str();
+	}
+	args[i] = NULL;
+	
+	redirect(out2,STDOUT_FILENO);
+	my_close(out2);
+	if (-1 == execvp(args[0], (char * const*)args))
+	{
+		perror("execvp");
+		exit(1);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main()
 {
 	//Get User Info
@@ -220,7 +335,10 @@ int main()
 		int start = 0;				//Start position for parse function
 		int size = 0;				//Size of user input
 		string usrString;			//User Input String
+		vector<string> iop;
+		vector<vector<string> > cmds;
 		cout << username << "@" << hostname << "$ ";
+		cin.sync();
 		getline(cin,usrString); size = usrString.size();
 		if (size == 0){
 			continue;
@@ -228,10 +346,134 @@ int main()
 
 		if (1 == check_input(usrString))
 		{
-			cout << "didn't find connectors. start piping" << endl;
-			//parse_pipe(usrString);
-			return 0;
+			iop.clear(); cmds.clear();
+			popv(usrString,iop,cmds);
+
+			int pipe_cnt = 0;
+			for (size_t a = 0; a < iop.size(); ++a)
+			{
+				if (iop.at(a) == "|")
+				{
+					++pipe_cnt;
+				}
+			}
+
+			if(cmds.empty())
+			{
+				continue;
+			}
+
+			int save_in;
+			if ( -1 == (save_in = dup(STDIN_FILENO)))
+			{
+				perror("dup");
+				exit(1);
+			}
+
+			pid_t pid;
+			int in = STDIN_FILENO;
+			size_t i = 0;
+			int fd[2];
+
+			if (iop.at(0) == "<")
+			{
+				if (-1 == pipe(fd))
+				{
+					perror("pipe");
+				}
+				if (-1 == (pid = fork()))
+				{
+					perror("fork");
+					exit(1);
+				}
+				else if (pid == 0)
+				{
+					my_close(fd[0]);
+					in_redir(cmds.at(0),cmds.at(1).at(0),fd[1],pipe_cnt);
+				}
+				else if (pid > 0)
+				{
+					wait(0);
+					my_close(fd[1]);
+					my_close(in);
+					in = fd[0];
+					i = 2;
+				}
+			}
+
+			if ( cmds.size() > 2 )
+			{
+
+				for (; i < cmds.size()-1; ++i)
+				{
+
+					if (-1 == pipe(fd))
+					{
+						perror("pipe");
+						exit(1);
+					}
+					else if (-1 == (pid = fork()))
+					{
+						perror("fork");
+						exit(1);
+					}
+					else if (pid == 0)
+					{
+						my_close(fd[0]);
+						execute(cmds.at(i),in,fd[1]);
+						exit(1);
+					}
+					else if (pid >0)
+					{
+						wait(0);
+						my_close(fd[1]);
+						my_close(in);
+						in = fd[0];
+					}
+				}
+				
+				if (-1 == (pid = fork()))
+				{
+					perror("fork");
+					exit(1);
+				}
+				if (pid == 0)
+				{
+					execute(cmds.at(i),in,STDOUT_FILENO);
+					exit(1);
+				}
+					
+				wait(0);
+				/*
+				else if (iop.at(iop.size()-1) == ">")
+				{
+					if (-1 == (pid = fork()))
+					{
+						perror("fork");
+						exit(1);
+					}
+					else if (pid == 0)
+					{
+						my_close(1);
+						size_t sz = cmds.size();
+						out1_redir(cmds.at(sz-2),cmds.at(sz-1).at(0),in,save_out);
+					}
+					else if (pid > 0)
+					{
+						wait(0);
+						my_close(fd[1]);
+						my_close(in);
+						in = fd[0];
+					}
+				}
+				*/
+				dup2(save_in,STDIN_FILENO);
+				continue;
+		}	
 		}
+
+
+
 
 		else
 		{
@@ -287,8 +529,8 @@ int main()
 			}
 		}
 	}
-		return 0;
 
+	return 0;
 }
 	
 	
