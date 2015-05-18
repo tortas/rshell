@@ -19,10 +19,13 @@ int check_input(string usrString)
 	if (usrString.find("&&") != string::npos ||
 		usrString.find("||") != string::npos ||
 		usrString.find(";") != string::npos ||
-		usrString.find("#") != string::npos)
-	{
-		return 0;
-	}
+		usrString.find("#") != string::npos ||
+		(usrString.find(">") == string::npos &&
+		usrString.find("<") == string::npos &&
+		usrString.find("|") == string::npos))
+		{
+			return 0;
+		}
 	else
 	{
 		return 1;
@@ -106,80 +109,6 @@ bool popv(string usrString, vector<string> &iop, vector<vector<string> > &cmds)
 	return true;
 }
 
-/*
-int parse_pipe(string usrString, int size)
-{
-	int pipefd[2];
-	int pid;
-
-	char **args = new char*[size+1];
-	char *cstr = new char[size+1];
-	strcpy(cstr,usrString.c_str());
-	char *temp = strtok(cstr, " ");
-	int cnt = 0;
-
-	while (temp != 0)
-	{
-		args[cnt] = temp;
-		++cnt; 
-		temp = strtok(NULL, " ");
-	}
-	if (cnt == 0)
-	{
-		cout << "syntax error: missing cmd for pipe" << endl;
-		return -1;
-	}
-	args[cnt] = NULL;
-
-	if (-1 == (pipe(pipefd))){
-		perror("pipe");
-		exit(1);
-	}
-
-	if (-1 == (pid = fork()))
-	{
-		perror("fork");
-		exit(1);
-	}
-
-	if (pid == 0)
-	{
-		if (-1 == close(1))
-		{
-			perror("close");
-			exit(1);
-		}
-		if (-1 == dup(fd[1]))
-		{
-			perror("dup");
-			exit(1);
-		}
-		if (-1 == execvp(args[0],args))
-		{
-			perror("exec");
-			exit(1);
-		}
-	}
-	else if (pid > 0)
-	{
-		if (-1 == close(0))
-        {
-        	perror("close");
-        	exit(1);
-        }
-
-		if (-1 == dup(fd[0])) 		
-        {
-        	perror("dup");
-        	exit(1);
-        }
-
-		if (-1 == (1))
-        {
-        	perror("close");
-        	exit(1);
-        }
-*/
 	
 //Function that parses a passed in string and executes the command it yields
 bool parse_exec(string usrString, int size)
@@ -197,6 +126,8 @@ bool parse_exec(string usrString, int size)
 		temp = strtok(NULL, " &|");
 	}
 	if (cnt == 0){
+		delete[] cstr;
+		delete[] args;
 		return false;
 	}
 	args[cnt] = NULL;
@@ -274,6 +205,49 @@ int check_connect(const string& str, int& pos, int start){
 	return -1;
 }
 
+void my_close(int fd)
+{
+	if (-1 == close(fd))
+	{
+		perror("close");
+	}
+}
+void redirect(int oldf, int newf)
+{
+	if (oldf != newf)
+	{
+		if (-1 == dup2(oldf,newf))
+		{
+			perror("dup2");
+		}
+		else
+		{
+			my_close(oldf);
+		}
+	}
+}
+
+void execute(vector<string> cmd, int in, int out)
+{
+	redirect(in, STDIN_FILENO);
+	redirect(out, STDOUT_FILENO);
+
+	int n = cmd.size();
+	int i;
+	const char **args = new const char*[ n+1 ];
+	for (i = 0; i < n; ++i)
+	{
+		args[i] = cmd.at(i).c_str();
+	}
+	args[i] = NULL;
+
+	execvp(args[0], (char * const*)args);
+	perror("execvp");
+	exit(1);
+}
+
+
+
 int main()
 {
 	//Get User Info
@@ -304,6 +278,7 @@ int main()
 		vector<string> iop;
 		vector<vector<string> > cmds;
 		cout << username << "@" << hostname << "$ ";
+		cin.sync();
 		getline(cin,usrString); size = usrString.size();
 		if (size == 0){
 			continue;
@@ -317,7 +292,74 @@ int main()
 			{
 				cout << "YES!" << endl;
 			}
-			return 0;
+
+			int pipe_cnt = 0;
+			for (size_t a = 0; a < iop.size(); ++a)
+			{
+				if (iop.at(a) == "|")
+				{
+					++pipe_cnt;
+				}
+			}
+
+			if(cmds.empty())
+			{
+				continue;
+			}
+
+			int save_in;
+			save_in = dup(STDIN_FILENO);
+			pid_t pid;
+			int in = STDIN_FILENO;
+			size_t i;
+			int fd[2];
+			for (i = 0; i < cmds.size()-1; ++i)
+			{
+				
+				if (-1 == pipe(fd))
+				{
+					perror("pipe");
+					exit(1);
+				}
+				else if (-1 == (pid = fork()))
+				{
+					perror("fork");
+					exit(1);
+				}
+				else if (pid == 0)
+				{
+					my_close(fd[0]);
+					execute(cmds.at(i),in,fd[1]);
+					exit(1);
+				}
+				else if (pid >0)
+				{
+					wait(0);
+					my_close(fd[1]);
+					my_close(in);
+					in = fd[0];
+				}
+			}
+			
+			if (-1 == (pid = fork()))
+			{
+				perror("fork");
+				exit(1);
+			}
+			if (pid == 0)
+			{
+				execute(cmds.at(i),in,STDOUT_FILENO);
+				exit(1);
+			}
+			
+			wait(0);
+			dup2(save_in,STDIN_FILENO);
+				
+		//	return 0;
+
+
+
+
 		}
 
 		else
