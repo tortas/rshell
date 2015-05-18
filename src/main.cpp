@@ -1,4 +1,5 @@
 #include <string.h>
+#include <fcntl.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <stdlib.h>
@@ -90,6 +91,7 @@ bool popv(string usrString, vector<string> &iop, vector<vector<string> > &cmds)
 	}
 
 	//Print check
+	/*
 	cout << "cmds: ";
 	for (size_t i = 0; i < cmds.size(); ++i)
 	{
@@ -106,6 +108,7 @@ bool popv(string usrString, vector<string> &iop, vector<vector<string> > &cmds)
 		cout << iop.at(n) << " ";
 	}
 	cout << endl;
+	*/
 	return true;
 }
 
@@ -246,6 +249,63 @@ void execute(vector<string> cmd, int in, int out)
 	exit(1);
 }
 
+void in_redir(vector<string> cmd, string file, int out, int cnt)
+{
+	my_close(0);
+	open(file.c_str(), O_RDWR);
+	size_t i;
+	const char **args = new const char*[cmd.size()+1];
+	for (i = 0; i < cmd.size(); ++i)
+	{
+		args[i] = cmd.at(i).c_str();
+	}
+	args[i] = NULL;
+	if ( cnt > 0 )
+	{
+		redirect(out,STDOUT_FILENO);
+	}
+	if(-1 == execvp(args[0], (char * const*)args))
+	{
+		perror("execvp");
+		exit(1);
+	}
+}
+
+void out1_redir(vector<string> cmd, string file, int out, int save_out)
+{
+	int out2;
+	if (-1 == (out2 = open(file.c_str(), O_WRONLY | O_CREAT | O_TRUNC)))
+	{
+		perror("open");
+		exit(1);
+	}
+	size_t i;
+	const char **args = new const char*[cmd.size()+1];
+	for (i = 0; i < cmd.size(); ++i)
+	{
+		args[i] = cmd.at(i).c_str();
+	}
+	args[i] = NULL;
+	
+	redirect(out2,STDOUT_FILENO);
+	my_close(out2);
+	if (-1 == execvp(args[0], (char * const*)args))
+	{
+		perror("execvp");
+		exit(1);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 int main()
@@ -286,12 +346,8 @@ int main()
 
 		if (1 == check_input(usrString))
 		{
-			cout << "didn't find connectors. start piping" << endl;
 			iop.clear(); cmds.clear();
-			if(popv(usrString,iop,cmds))
-			{
-				cout << "YES!" << endl;
-			}
+			popv(usrString,iop,cmds);
 
 			int pipe_cnt = 0;
 			for (size_t a = 0; a < iop.size(); ++a)
@@ -308,20 +364,24 @@ int main()
 			}
 
 			int save_in;
-			save_in = dup(STDIN_FILENO);
+			if ( -1 == (save_in = dup(STDIN_FILENO)))
+			{
+				perror("dup");
+				exit(1);
+			}
+
 			pid_t pid;
 			int in = STDIN_FILENO;
-			size_t i;
+			size_t i = 0;
 			int fd[2];
-			for (i = 0; i < cmds.size()-1; ++i)
+
+			if (iop.at(0) == "<")
 			{
-				
 				if (-1 == pipe(fd))
 				{
 					perror("pipe");
-					exit(1);
 				}
-				else if (-1 == (pid = fork()))
+				if (-1 == (pid = fork()))
 				{
 					perror("fork");
 					exit(1);
@@ -329,38 +389,91 @@ int main()
 				else if (pid == 0)
 				{
 					my_close(fd[0]);
-					execute(cmds.at(i),in,fd[1]);
-					exit(1);
+					in_redir(cmds.at(0),cmds.at(1).at(0),fd[1],pipe_cnt);
 				}
-				else if (pid >0)
+				else if (pid > 0)
 				{
 					wait(0);
 					my_close(fd[1]);
 					my_close(in);
 					in = fd[0];
+					i = 2;
 				}
 			}
-			
-			if (-1 == (pid = fork()))
+
+			if ( cmds.size() > 2 )
 			{
-				perror("fork");
-				exit(1);
-			}
-			if (pid == 0)
-			{
-				execute(cmds.at(i),in,STDOUT_FILENO);
-				exit(1);
-			}
-			
-			wait(0);
-			dup2(save_in,STDIN_FILENO);
+
+				for (; i < cmds.size()-1; ++i)
+				{
+
+					if (-1 == pipe(fd))
+					{
+						perror("pipe");
+						exit(1);
+					}
+					else if (-1 == (pid = fork()))
+					{
+						perror("fork");
+						exit(1);
+					}
+					else if (pid == 0)
+					{
+						my_close(fd[0]);
+						execute(cmds.at(i),in,fd[1]);
+						exit(1);
+					}
+					else if (pid >0)
+					{
+						wait(0);
+						my_close(fd[1]);
+						my_close(in);
+						in = fd[0];
+					}
+				}
 				
-		//	return 0;
-
-
-
-
+				if (-1 == (pid = fork()))
+				{
+					perror("fork");
+					exit(1);
+				}
+				if (pid == 0)
+				{
+					execute(cmds.at(i),in,STDOUT_FILENO);
+					exit(1);
+				}
+					
+				wait(0);
+				/*
+				else if (iop.at(iop.size()-1) == ">")
+				{
+					if (-1 == (pid = fork()))
+					{
+						perror("fork");
+						exit(1);
+					}
+					else if (pid == 0)
+					{
+						my_close(1);
+						size_t sz = cmds.size();
+						out1_redir(cmds.at(sz-2),cmds.at(sz-1).at(0),in,save_out);
+					}
+					else if (pid > 0)
+					{
+						wait(0);
+						my_close(fd[1]);
+						my_close(in);
+						in = fd[0];
+					}
+				}
+				*/
+				dup2(save_in,STDIN_FILENO);
+				continue;
+		}	
 		}
+
+
+
 
 		else
 		{
@@ -416,8 +529,8 @@ int main()
 			}
 		}
 	}
-	return 0;
 
+	return 0;
 }
 	
 	
