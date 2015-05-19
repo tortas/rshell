@@ -363,6 +363,13 @@ int main()
 				continue;
 			}
 
+		/*	int save_out;
+			if (-1 == (save_out = dup(STDOUT_FILENO)))
+			{
+				perror("dup");
+				exit(1);
+			}  */
+
 			int save_in;
 			if ( -1 == (save_in = dup(STDIN_FILENO)))
 			{
@@ -401,7 +408,7 @@ int main()
 				}
 			}
 
-			if ( cmds.size() > 2 )
+			if ((cmds.size() >= 2) && (pipe_cnt > 0))
 			{
 
 				for (; i < cmds.size()-1; ++i)
@@ -444,6 +451,8 @@ int main()
 				}
 					
 				wait(0);
+				my_close(in);
+				in = fd[0];
 				/*
 				else if (iop.at(iop.size()-1) == ">")
 				{
@@ -467,9 +476,11 @@ int main()
 					}
 				}
 				*/
-				dup2(save_in,STDIN_FILENO);
-				continue;
-		}	
+			}
+			dup2(save_in,STDIN_FILENO);
+		//	dup2(save_out,STDOUT_FILENO);
+			continue;
+				
 		}
 
 
