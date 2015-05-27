@@ -363,12 +363,12 @@ int main()
 				continue;
 			}
 
-		/*	int save_out;
+			/*int save_out;
 			if (-1 == (save_out = dup(STDOUT_FILENO)))
 			{
 				perror("dup");
 				exit(1);
-			}  */
+			} */ 
 
 			int save_in;
 			if ( -1 == (save_in = dup(STDIN_FILENO)))
@@ -388,6 +388,8 @@ int main()
 				{
 					perror("pipe");
 				}
+				cout << "fd[0] " << fd[0] << endl;
+				cout << "fd[1] " << fd[1] << endl;
 				if (-1 == (pid = fork()))
 				{
 					perror("fork");
@@ -449,36 +451,18 @@ int main()
 					execute(cmds.at(i),in,STDOUT_FILENO);
 					exit(1);
 				}
-					
-				wait(0);
-				my_close(in);
-				in = fd[0];
-				/*
-				else if (iop.at(iop.size()-1) == ">")
+				else if (pid > 0)
 				{
-					if (-1 == (pid = fork()))
-					{
-						perror("fork");
-						exit(1);
-					}
-					else if (pid == 0)
-					{
-						my_close(1);
-						size_t sz = cmds.size();
-						out1_redir(cmds.at(sz-2),cmds.at(sz-1).at(0),in,save_out);
-					}
-					else if (pid > 0)
-					{
-						wait(0);
-						my_close(fd[1]);
-						my_close(in);
-						in = fd[0];
-					}
+					wait(0);
+					my_close(in);
+					in = fd[0];
+					cout << "fd[0]: " << fd[0] << endl;
+					cout << "fd[1]: " << fd[1] << endl;
 				}
-				*/
 			}
 			dup2(save_in,STDIN_FILENO);
-		//	dup2(save_out,STDOUT_FILENO);
+			my_close(save_in);
+			//dup2(save_out,fd[1]);
 			continue;
 				
 		}
