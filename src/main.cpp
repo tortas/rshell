@@ -252,7 +252,11 @@ void execute(vector<string> cmd, int in, int out)
 void in_redir(vector<string> cmd, string file, int out, int cnt)
 {
 	my_close(0);
-	open(file.c_str(), O_RDWR);
+	if (-1 == open(file.c_str(), O_RDWR))
+	{
+		perror("open");
+		exit(1);
+	}
 	size_t i;
 	const char **args = new const char*[cmd.size()+1];
 	for (i = 0; i < cmd.size(); ++i)
@@ -297,23 +301,12 @@ void out1_redir(vector<string> cmd, string file, int out, int save_out)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 int main()
 {
 	//Get User Info
 	string hostname;
-	string username = getlogin();
-	if(getlogin() == NULL){
+	string username;
+	if(NULL == (username = getlogin())){
 		perror("login");
 		username = "UNKNOWN";
 	}
@@ -348,7 +341,7 @@ int main()
 		cout << username << "@" << hostname << ":" << cwd << "$ ";
 
 		//Get User Input
-		cin.sync();
+		cin.clear();
 		getline(cin,usrString); size = usrString.size();
 		if (size == 0){
 			continue;
@@ -398,6 +391,7 @@ int main()
 				{
 					perror("pipe");
 				}
+				//REMOVE AFTER TESTING
 				cout << "fd[0] " << fd[0] << endl;
 				cout << "fd[1] " << fd[1] << endl;
 				if (-1 == (pid = fork()))
@@ -412,7 +406,11 @@ int main()
 				}
 				else if (pid > 0)
 				{
-					wait(0);
+					if (-1 == wait(0))
+					{
+						perror("wait");
+						exit(1);
+					}
 					my_close(fd[1]);
 					my_close(in);
 					in = fd[0];
@@ -444,7 +442,11 @@ int main()
 					}
 					else if (pid >0)
 					{
-						wait(0);
+						if (-1 == wait(0))
+						{
+							perror("wait");
+							exit(1);
+						}
 						my_close(fd[1]);
 						my_close(in);
 						in = fd[0];
@@ -463,14 +465,23 @@ int main()
 				}
 				else if (pid > 0)
 				{
-					wait(0);
+					if (-1 == wait(0))
+					{
+						perror("wait");
+						exit(1);
+					}
 					my_close(in);
 					in = fd[0];
+					//REMOVE AFTER TESTING
 					cout << "fd[0]: " << fd[0] << endl;
 					cout << "fd[1]: " << fd[1] << endl;
 				}
 			}
-			dup2(save_in,STDIN_FILENO);
+			if (-1 == dup2(save_in,STDIN_FILENO))
+			{
+				perror("dup2");
+				exit(1);
+			}
 			my_close(save_in);
 			//dup2(save_out,fd[1]);
 			continue;
