@@ -328,7 +328,7 @@ int main()
 
 
 	while(1){
-		//Get User Input
+		//Initialize Variables
 		bool exec_stat = true;		//Execution Status
 		int con_stat = 0;			//Connector Status
 		int pos = 0;				//Position of Connector
@@ -337,7 +337,17 @@ int main()
 		string usrString;			//User Input String
 		vector<string> iop;
 		vector<vector<string> > cmds;
-		cout << username << "@" << hostname << "$ ";
+
+		//Print Prompt
+		char cwd[PATH_MAX];
+		if (NULL == getcwd(cwd,PATH_MAX))
+		{
+			perror("getcwd");
+		}
+		
+		cout << username << "@" << hostname << ":" << cwd << "$ ";
+
+		//Get User Input
 		cin.sync();
 		getline(cin,usrString); size = usrString.size();
 		if (size == 0){
