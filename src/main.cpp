@@ -299,6 +299,9 @@ void out1_redir(vector<string> cmd, string file, int out, int save_out)
 		exit(1);
 	}
 }
+bool cd_check(string usrString, bool &cd_flag)
+{
+
 
 
 int main()
@@ -328,6 +331,7 @@ int main()
 		int start = 0;				//Start position for parse function
 		int size = 0;				//Size of user input
 		string usrString;			//User Input String
+		bool cd_flag = false;
 		vector<string> iop;
 		vector<vector<string> > cmds;
 
@@ -344,6 +348,13 @@ int main()
 		cin.clear();
 		getline(cin,usrString); size = usrString.size();
 		if (size == 0){
+			continue;
+		}
+
+		cd_check(usrString, cd_flag);
+		if (cd_flag)
+		{
+			cd_action(usrString);
 			continue;
 		}
 
