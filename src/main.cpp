@@ -299,19 +299,70 @@ void out1_redir(vector<string> cmd, string file, int out, int save_out)
 		exit(1);
 	}
 }
-bool cd_check(string usrString, bool &cd_flag)
+bool cd_check(string usrString, vector<string> &cd_vec)
 {
+	typedef tokenizer<> tokenizer;
+	tokenizer tokens(usrString);
 
+	int cnt = 0;
+	for (auto it = tokens.begin(); it != tokens.end(); ++it)
+	{
+		if ((cnt == 0) && (*it != "cd"))
+		{
+			return false;
+		}
+		cnt++;
+		cd_vec.push_back(*it);
+	}
+		
+	return true;
+}
 
+bool cd_action(vector<string> &cd_vec)
+{
+	//NEED TO SETENV!!!!
+	if (cd_vec.size() == 1)
+	{
+		if(-1 == chdir(getenv("HOME")))
+		{
+			perror("chdir: HOME:");
+			return false;
+		}
+		return true;
+	}
+	else if (cd_vec.at(1) == "-")
+	{
+		if(-1 == chdir(getenv("OLDPWD")))
+		{
+			perror("chdir: OLDPWD:");
+			return false;
+		}
+		return true;
+	}
+
+	return false;	
+}
 
 int main()
 {
+	//Set OLDPWD to home 
+	char *home = getenv("HOME");
+	if(home == NULL)
+	{
+		cout << "HOME not found" << endl;
+	}
+	if (-1 == setenv("OLDPWD",home_ptr,1))
+	{
+		perror("setenv");
+	}
+	cout << "home: " << home << endl; //REMOVE
+	cout << "OLDPWD: " << getenv("OLDPWD") << endl; //REMOVE
 	//Get User Info
 	string hostname;
-	string username;
-	if(NULL == (username = getlogin())){
+	char* username;
+	username = getlogin();
+	if(username == NULL){
 		perror("login");
-		username = "UNKNOWN";
 	}
 	char host_temp[64];
 	if(gethostname(host_temp,64) == -1){
@@ -332,6 +383,7 @@ int main()
 		int size = 0;				//Size of user input
 		string usrString;			//User Input String
 		bool cd_flag = false;
+		vector<string> cd_vec;
 		vector<string> iop;
 		vector<vector<string> > cmds;
 
@@ -351,10 +403,12 @@ int main()
 			continue;
 		}
 
-		cd_check(usrString, cd_flag);
+		cd_vec.clear();
+		cd_flag = cd_check(usrString, cd_vec);
 		if (cd_flag)
 		{
-			cd_action(usrString);
+			cout << "cd command found: begin cd_action" << endl;
+			cd_action(cd_vec);
 			continue;
 		}
 
