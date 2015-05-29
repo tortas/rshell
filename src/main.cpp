@@ -301,8 +301,9 @@ void out1_redir(vector<string> cmd, string file, int out, int save_out)
 }
 bool cd_check(string usrString, vector<string> &cd_vec)
 {
-	typedef tokenizer<> tokenizer;
-	tokenizer tokens(usrString);
+	typedef tokenizer<char_separator<char> > tokenizer;
+	char_separator<char> sep(" ", "-",drop_empty_tokens);
+	tokenizer tokens(usrString, sep);
 
 	int cnt = 0;
 	for (auto it = tokens.begin(); it != tokens.end(); ++it)
@@ -318,8 +319,9 @@ bool cd_check(string usrString, vector<string> &cd_vec)
 	return true;
 }
 
-bool cd_action(vector<string> &cd_vec)
+bool cd_action(vector<string> &cd_vec, char *curr)
 {
+	cout << "cwd: " << curr << endl;
 	//NEED TO SETENV!!!!
 	if (cd_vec.size() == 1)
 	{
@@ -328,14 +330,30 @@ bool cd_action(vector<string> &cd_vec)
 			perror("chdir: HOME:");
 			return false;
 		}
+		if(-1 == setenv("PWD",getenv("HOME"),1))
+		{
+			perror("setenv");
+		}
+		if(-1 == setenv("OLDPWD",curr,1))
+		{
+			perror("setenv");
+		}
 		return true;
 	}
 	else if (cd_vec.at(1) == "-")
-	{
-		if(-1 == chdir(getenv("OLDPWD")))
+	{	
+		if(-1 == chdir(".."))
 		{
 			perror("chdir: OLDPWD:");
 			return false;
+		}
+		if(-1 == setenv("PWD",getenv("OLDPWD"),1))
+		{
+			perror("setenv");
+		}
+		if(-1 == setenv("OLDPWD",curr,1))
+		{
+			perror("setenv");
 		}
 		return true;
 	}
@@ -351,7 +369,7 @@ int main()
 	{
 		cout << "HOME not found" << endl;
 	}
-	if (-1 == setenv("OLDPWD",home_ptr,1))
+	if (-1 == setenv("OLDPWD",home,1))
 	{
 		perror("setenv");
 	}
@@ -388,11 +406,7 @@ int main()
 		vector<vector<string> > cmds;
 
 		//Print Prompt
-		char cwd[PATH_MAX];
-		if (NULL == getcwd(cwd,PATH_MAX))
-		{
-			perror("getcwd");
-		}
+		char *cwd = getenv("PWD");
 		
 		cout << username << "@" << hostname << ":" << cwd << "$ ";
 
@@ -407,8 +421,16 @@ int main()
 		cd_flag = cd_check(usrString, cd_vec);
 		if (cd_flag)
 		{
+			cout << "cd_vec: " << endl;
+			for(size_t i = 0; i < cd_vec.size(); ++i)
+			{
+				cout << "\t" << cd_vec.at(i) << endl;
+			}
 			cout << "cd command found: begin cd_action" << endl;
-			cd_action(cd_vec);
+			if (!cd_action(cd_vec,cwd))
+			{
+				cout << "error with cd_action" << endl;
+			}
 			continue;
 		}
 
