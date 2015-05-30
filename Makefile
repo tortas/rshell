@@ -1,10 +1,11 @@
 CXX = g++
+C11 = --std=c++11
 FLAGS = -Wall -Werror -pedantic
 
-all: rshell ls rm mv	
+all: rshell 
 
 rshell: bin 
-	$(CXX) $(FLAGS) src/main.cpp -o bin/rshell
+	$(CXX) $(C11) $(FLAGS) src/main.cpp -o bin/rshell
 
 ls: bin
 	$(CXX) $(FLAGS) src/ls.cpp -o bin/ls
