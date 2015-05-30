@@ -1,4 +1,5 @@
 #include <string.h>
+#include <signal.h>
 #include <fcntl.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
@@ -150,8 +151,15 @@ bool parse_exec(string usrString, int size)
 		}
 	}
 	else if(pid > 0){
-		if(-1 == wait(&status)){
+		pid_t wpid;
+		do
+		{
+			wpid = wait(&status);
+		} while (wpid == -1 && errno == EINTR);
+		if (-1 == wpid)
+		{
 			perror("wait");
+			return 1;
 		}
 	}
 
@@ -342,7 +350,7 @@ bool cd_action(vector<string> &cd_vec, char *curr)
 	}
 	else if (cd_vec.at(1) == "-")
 	{	
-		if(-1 == chdir(".."))
+		if(-1 == chdir(getenv("OLDPWD")))
 		{
 			perror("chdir: OLDPWD:");
 			return false;
@@ -357,12 +365,68 @@ bool cd_action(vector<string> &cd_vec, char *curr)
 		}
 		return true;
 	}
+	else
+	{
+		const char *dir_to = cd_vec.at(1).c_str();
+		if(-1 == chdir(dir_to))
+		{
+			perror("chdir");
+			return false;
+		}
+		char cwd[PATH_MAX];
+		if(NULL == getcwd(cwd,PATH_MAX))
+		{
+			cerr << "Error with getcwd()" << endl;
+		}
+		if(-1 == setenv("PWD", cwd, 1))
+		{
+			perror("setenv");
+		}
+		if(-1 == setenv("OLDPWD", curr, 1))
+		{
+			perror("setenv");
+		}
+		return true;
+	}
 
 	return false;	
+}
+pid_t parent_pid;
+
+void sighdl (int signum, siginfo_t *siginfo, void *context)
+{
+	if (signum == SIGINT)
+	{
+		cout << "signal caught" << endl;
+		pid_t self = getpid();
+		if(parent_pid != self)
+		{
+			_exit(0);
+		}
+		
+		/*
+		if(-1 == kill(siginfo->si_pid,SIGINT))
+		{
+			perror("kill");
+		} */
+	}
 }
 
 int main()
 {
+	//Setup sigaction 
+	struct sigaction act;
+
+	act.sa_sigaction = &sighdl;
+	act.sa_flags = SA_SIGINFO;
+
+	if (sigaction(SIGINT, &act, NULL) < 0)
+	{
+		perror("sigaction");
+		return 1;
+	}
+	parent_pid = getpid();
+
 	//Set OLDPWD to home 
 	char *home = getenv("HOME");
 	if(home == NULL)
