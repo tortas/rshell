@@ -1,0 +1,83 @@
+Script started on Fri 29 May 2015 09:34:34 PM PDT
+~
+lseeb002@hammer $ #Welcome to the signals script!
+~
+lseeb002@hammer $ cd rshell
+~/rshell
+lseeb002@hammer $ bin/rshell
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #We are now in the shell
+lseeb002@hammer.cs.ucr.edu:~/rshell$ ps
+  PID TTY          TIME CMD
+16194 pts/3    00:00:00 bash
+16196 pts/3    00:00:00 rshell
+16205 pts/3    00:00:00 ps
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Let's start by testing out the cd command by itself
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cd
+lseeb002@hammer.cs.ucr.edu:~$ " #$ We are now in the home directory.
+lseeb002@hammer.cs.ucr.edu:~$ pwd
+/class/classes/lseeb002
+lseeb002@hammer.cs.ucr.edu:~$ #Notice how the path is replaced by the fans cy "~"
+lseeb002@hammer.cs.ucr.edu:~$ #WE can b go back into the previous directory with cd -
+lseeb002@hammer.cs.ucr.edu:~$ cd -
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Back in rshell
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cd -
+lseeb002@hammer.cs.ucr.edu:~$ #Back home.
+lseeb002@hammer.cs.ucr.edu:~$ #We now test the cd command with a destination
+lseeb002@hammer.cs.ucr.edu:~$ cd rshell
+lseeb002@hammer.cs.ucr.edu:~/rshell$ ls
+bin  LICENSE  Makefile	nee  README.md	src  tests
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Those sure are the files in rshell so we must be in there!
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #How about using the cd command with lots of spaces!?
+lseeb002@hammer.cs.ucr.edu:~/rshell$                        cd                     src
+cd
+^C
+ls
+lseeb002@hammer.cs.ucr.edu:~/rshell/src$ lseeb002@hammer.cs.ucr.edu:~/rshell/src$ 
+cd.cpp	cdtest	ls.cpp	main.cpp  mv.cpp  rm.cpp
+lseeb002@hammer.cs.ucr.edu:~/rshell/src$ #That was strac nge let's try again.
+lseeb002@hammer.cs.ucr.edu:~/rshell/src$          cd
+lseeb002@hammer.cs.ucr.edu:~$ #Back home
+lseeb002@hammer.cs.ucr.edu:~$ cd rshell/src
+lseeb002@hammer.cs.ucr.edu:~/rshell/src$ #We can move two directories in one call!
+lseeb002@hammer.cs.ucr.edu:~/rshell/src$ cd -
+lseeb002@hammer.cs.ucr.edu:~$ #Back into previous directory, home.
+lseeb002@hammer.cs.ucr.edu:~$ ls
+Desktop  quiz3.cpp  rshell  test  ucr-cs100
+lseeb002@hammer.cs.ucr.edu:~$ cd rshell
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cd            src
+lseeb002@hammer.cs.ucr.edu:~/rshell/src$ #Cool!
+lseeb002@hammer.cs.ucr.edu:~/rshell/src$ cd
+lseeb002@hammer.cs.ucr.edu:~$ #Now let's test the ^C signals 
+lseeb002@hammer.cs.ucr.edu:~$ #We will begin by using it on cat 
+lseeb002@hammer.cs.ucr.edu:~$ cat
+hey
+hey
+stop copying me!
+stop copying me!
+no more playing
+no more playing
+^C
+lseeb002@hammer.cs.ucr.edu:~$ #Control is now back in the hands of the r shell
+lseeb002@hammer.cs.ucr.edu:~$ #We can also use of    it on other commands
+lseeb002@hammer.cs.ucr.edu:~$ head
+lknseca
+lknseca
+^C
+lseeb002@hammer.cs.ucr.edu:~$ tail
+lknsoinv
+^C
+lseeb002@hammer.cs.ucr.edu:~$ sleep 1000000
+ok i'm definitely not waiting that long
+^C
+lseeb002@hammer.cs.ucr.edu:~$ #The shell will not do anyh thing with ^C if there is no child ps to c kill
+lseeb002@hammer.cs.ucr.edu:~$ ^C
+lseeb002@hammer.cs.ucr.edu:~$ ^C
+lseeb002@hammer.cs.ucr.edu:~$ 
+lseeb002@hammer.cs.ucr.edu:~$ ^C
+lseeb002@hammer.cs.ucr.edu:~$ #I hope you've enjoyed the script
+lseeb002@hammer.cs.ucr.edu:~$ exit
+~/rshell
+lseeb002@hammer $ exit
+exit
+
+Script done on Fri 29 May 2015 09:42:34 PM PDT
