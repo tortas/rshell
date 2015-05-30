@@ -310,7 +310,7 @@ void out1_redir(vector<string> cmd, string file, int out, int save_out)
 bool cd_check(string usrString, vector<string> &cd_vec)
 {
 	typedef tokenizer<char_separator<char> > tokenizer;
-	char_separator<char> sep(" ", "-",drop_empty_tokens);
+	char_separator<char> sep(" ");
 	tokenizer tokens(usrString, sep);
 
 	int cnt = 0;
@@ -329,8 +329,6 @@ bool cd_check(string usrString, vector<string> &cd_vec)
 
 bool cd_action(vector<string> &cd_vec, char *curr)
 {
-	cout << "cwd: " << curr << endl;
-	//NEED TO SETENV!!!!
 	if (cd_vec.size() == 1)
 	{
 		if(-1 == chdir(getenv("HOME")))
@@ -397,18 +395,12 @@ void sighdl (int signum, siginfo_t *siginfo, void *context)
 {
 	if (signum == SIGINT)
 	{
-		cout << "signal caught" << endl;
+		cout << endl;
 		pid_t self = getpid();
 		if(parent_pid != self)
 		{
 			_exit(0);
 		}
-		
-		/*
-		if(-1 == kill(siginfo->si_pid,SIGINT))
-		{
-			perror("kill");
-		} */
 	}
 }
 
@@ -429,6 +421,7 @@ int main()
 
 	//Set OLDPWD to home 
 	char *home = getenv("HOME");
+	string home_s = home;
 	if(home == NULL)
 	{
 		cout << "HOME not found" << endl;
@@ -437,8 +430,6 @@ int main()
 	{
 		perror("setenv");
 	}
-	cout << "home: " << home << endl; //REMOVE
-	cout << "OLDPWD: " << getenv("OLDPWD") << endl; //REMOVE
 	//Get User Info
 	string hostname;
 	char* username;
@@ -456,6 +447,7 @@ int main()
 	}
 
 
+	string squig = "~";
 	while(1){
 		//Initialize Variables
 		bool exec_stat = true;		//Execution Status
@@ -471,8 +463,13 @@ int main()
 
 		//Print Prompt
 		char *cwd = getenv("PWD");
+		string cwd_str = cwd;
+		if (0 == cwd_str.find(home_s,0))
+		{
+			cwd_str.replace(0,home_s.length(),squig);
+		}
 		
-		cout << username << "@" << hostname << ":" << cwd << "$ ";
+		cout << username << "@" << hostname << ":" << cwd_str << "$ ";
 
 		//Get User Input
 		cin.clear();
@@ -485,12 +482,6 @@ int main()
 		cd_flag = cd_check(usrString, cd_vec);
 		if (cd_flag)
 		{
-			cout << "cd_vec: " << endl;
-			for(size_t i = 0; i < cd_vec.size(); ++i)
-			{
-				cout << "\t" << cd_vec.at(i) << endl;
-			}
-			cout << "cd command found: begin cd_action" << endl;
 			if (!cd_action(cd_vec,cwd))
 			{
 				cout << "error with cd_action" << endl;
