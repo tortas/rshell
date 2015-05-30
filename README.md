@@ -79,7 +79,6 @@ rshell contains the following bugs:
 1. rshell does not support any sort of output redirection
 2. rshell will not continue execution if it encounters unknown connectors (i.e. `&&&` or `|||`)
 3. rshell disregards singular `&` connectors which may cause errors
-4. `cd -` moves you up the directory tree like `cd ..` does in bash.
 
 Any other bugs should be posted as an issue in the github repository:
 	``https://github.com/tortas/rshell.git``
