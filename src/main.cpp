@@ -283,30 +283,6 @@ void in_redir(vector<string> cmd, string file, int out, int cnt)
 	}
 }
 
-void out1_redir(vector<string> cmd, string file, int out, int save_out)
-{
-	int out2;
-	if (-1 == (out2 = open(file.c_str(), O_WRONLY | O_CREAT | O_TRUNC)))
-	{
-		perror("open");
-		exit(1);
-	}
-	size_t i;
-	const char **args = new const char*[cmd.size()+1];
-	for (i = 0; i < cmd.size(); ++i)
-	{
-		args[i] = cmd.at(i).c_str();
-	}
-	args[i] = NULL;
-	
-	redirect(out2,STDOUT_FILENO);
-	my_close(out2);
-	if (-1 == execvp(args[0], (char * const*)args))
-	{
-		perror("execvp");
-		exit(1);
-	}
-}
 bool cd_check(string usrString, vector<string> &cd_vec)
 {
 	typedef tokenizer<char_separator<char> > tokenizer;
@@ -459,6 +435,7 @@ int main()
 		bool cd_flag = false;
 		bool o_redir1 = false;
 		bool o_redir2 = false;
+		bool i_redir = false;
 		vector<string> cd_vec;
 		vector<string> iop;
 		vector<vector<string> > cmds;
@@ -518,6 +495,10 @@ int main()
 			{
 				o_redir2 = true;
 			}
+			if (iop.at(0) == "<")
+			{
+				i_redir = true;
+			}
 
 			int save_out;
 			if (-1 == (save_out = dup(STDOUT_FILENO)))
@@ -537,8 +518,56 @@ int main()
 			int in = STDIN_FILENO;
 			size_t i = 0;
 			int fd[2];
+			if ((i_redir) && (o_redir1 || o_redir2) && (pipe_cnt == 0))
+			{
+				int infd = 0;
+				int outfd = 0;
+				string in_file = cmds.at(1).at(0);
+				string out_file = cmds.at(2).at(0);
+				if (-1 == (infd = open(in_file.c_str(), O_RDONLY)))
+				{
+					perror("open infile");
+				}
+				if (o_redir1)
+				{
+					if (-1 == (outfd = open(out_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT,
+						S_IRUSR | S_IRGRP| S_IWUSR | S_IWGRP)))
+					{
+						perror("open outfile");
+					}
+				}
+				else if(o_redir2)
+				{
+					if (-1 == (outfd = open(out_file.c_str(), O_WRONLY | O_APPEND | O_CREAT,
+						S_IRUSR | S_IRGRP | S_IWUSR | S_IWGRP)))
+					{
+						perror("open outfile");
+					}
+				}
 
-			if (iop.at(0) == "<")
+				if (-1 == (pid = fork()))
+				{
+					perror("fork");
+					return 1;
+				}
+				if (pid == 0)
+				{
+					execute(cmds.at(0),infd,outfd);
+				}
+				if (pid > 0)
+				{
+					if (-1 == wait(0))
+					{
+						perror("wait");
+					}
+					redirect(save_in,STDIN_FILENO);
+					redirect(save_out,STDOUT_FILENO);
+				}
+				continue;
+			}
+
+
+			if (i_redir)
 			{
 				if (-1 == pipe(fd))
 				{
@@ -625,14 +654,14 @@ int main()
 						cout << "outfile: " << outfile << endl; //TEST
 						if (o_redir1)
 						{
-							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_TRUNC | O_WRONLY)))
+							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_TRUNC | O_RDWR)))
 							{
 								perror("open");
 							}
 						}
 						else if (o_redir2)
 						{
-							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_WRONLY | O_APPEND)))	
+							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_RDWR | O_APPEND)))	
                             {
                             	perror("open");
                             }
@@ -661,11 +690,6 @@ int main()
 					cout << "fd[1]: " << fd[1] << endl;
 				}
 			}
-			/*if (-1 == dup2(save_in,STDIN_FILENO))
-			{
-				perror("dup2");
-				exit(1);
-			}*/
 			redirect(save_in,STDIN_FILENO);
 			if (o_redir1 || o_redir2)
 			{
