@@ -573,9 +573,6 @@ int main()
 				{
 					perror("pipe");
 				}
-				//REMOVE AFTER TESTING
-				cout << "fd[0] " << fd[0] << endl;
-				cout << "fd[1] " << fd[1] << endl;
 				if (-1 == (pid = fork()))
 				{
 					perror("fork");
@@ -610,7 +607,6 @@ int main()
 
 				for (; i < cmds.size()-k; ++i)
 				{
-					cout << "stdout: " << STDOUT_FILENO << endl; //TEST
 					if (-1 == pipe(fd))
 					{
 						perror("pipe");
@@ -651,17 +647,18 @@ int main()
 					{
 						int ofile_fd;
 						string outfile = cmds.at(cmds.size()-1).at(0);
-						cout << "outfile: " << outfile << endl; //TEST
 						if (o_redir1)
 						{
-							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_TRUNC | O_RDWR)))
+							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_TRUNC | O_RDWR,
+								S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR)))
 							{
 								perror("open");
 							}
 						}
 						else if (o_redir2)
 						{
-							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_RDWR | O_APPEND)))	
+							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_RDWR | O_APPEND,
+								S_IRUSR | S_IRGRP | S_IWGRP | S_IWUSR)))	
                             {
                             	perror("open");
                             }
@@ -671,7 +668,6 @@ int main()
 					}
 					else
 					{
-						cout << "stdout for last: " << STDOUT_FILENO << endl; //TEST
 						execute(cmds.at(i),in,STDOUT_FILENO);
 						exit(1);
 					}
@@ -685,22 +681,16 @@ int main()
 					}
 					my_close(in);
 					in = fd[0];
-					//REMOVE AFTER TESTING
-					cout << "fd[0]: " << fd[0] << endl;
-					cout << "fd[1]: " << fd[1] << endl;
 				}
 			}
 			redirect(save_in,STDIN_FILENO);
 			if (o_redir1 || o_redir2)
 			{
-				cout << "save out close" << endl; //TEST
 				redirect(save_out,STDOUT_FILENO);
 			}
 			continue;
 				
 		}
-
-
 
 
 		else
