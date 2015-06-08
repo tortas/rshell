@@ -457,6 +457,8 @@ int main()
 		int size = 0;				//Size of user input
 		string usrString;			//User Input String
 		bool cd_flag = false;
+		bool o_redir1 = false;
+		bool o_redir2 = false;
 		vector<string> cd_vec;
 		vector<string> iop;
 		vector<vector<string> > cmds;
@@ -508,12 +510,21 @@ int main()
 				continue;
 			}
 
-			/*int save_out;
+			if (iop.at(iop.size()-1) == ">")
+			{
+				o_redir1 = true;
+			}
+			else if (iop.at(iop.size()-1) == ">>")
+			{
+				o_redir2 = true;
+			}
+
+			int save_out;
 			if (-1 == (save_out = dup(STDOUT_FILENO)))
 			{
 				perror("dup");
 				exit(1);
-			} */ 
+			}  
 
 			int save_in;
 			if ( -1 == (save_in = dup(STDIN_FILENO)))
@@ -560,12 +571,17 @@ int main()
 				}
 			}
 
-			if ((cmds.size() >= 2) && (pipe_cnt > 0))
+			if ((cmds.size() >= 2) && (pipe_cnt > 0 || o_redir1 || o_redir2))
 			{
-
-				for (; i < cmds.size()-1; ++i)
+				int k = 1;
+				if (o_redir1 || o_redir2)
 				{
+					++k;
+				}
 
+				for (; i < cmds.size()-k; ++i)
+				{
+					cout << "stdout: " << STDOUT_FILENO << endl; //TEST
 					if (-1 == pipe(fd))
 					{
 						perror("pipe");
@@ -602,8 +618,34 @@ int main()
 				}
 				if (pid == 0)
 				{
-					execute(cmds.at(i),in,STDOUT_FILENO);
-					exit(1);
+					if (o_redir1 || o_redir2)
+					{
+						int ofile_fd;
+						string outfile = cmds.at(cmds.size()-1).at(0);
+						cout << "outfile: " << outfile << endl; //TEST
+						if (o_redir1)
+						{
+							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_TRUNC | O_WRONLY)))
+							{
+								perror("open");
+							}
+						}
+						else if (o_redir2)
+						{
+							if (-1 == (ofile_fd = open(outfile.c_str(),	O_CREAT | O_WRONLY | O_APPEND)))	
+                            {
+                            	perror("open");
+                            }
+						}
+						redirect(ofile_fd, STDOUT_FILENO);
+						execute(cmds.at(i),in,STDOUT_FILENO);
+					}
+					else
+					{
+						cout << "stdout for last: " << STDOUT_FILENO << endl; //TEST
+						execute(cmds.at(i),in,STDOUT_FILENO);
+						exit(1);
+					}
 				}
 				else if (pid > 0)
 				{
@@ -619,13 +661,17 @@ int main()
 					cout << "fd[1]: " << fd[1] << endl;
 				}
 			}
-			if (-1 == dup2(save_in,STDIN_FILENO))
+			/*if (-1 == dup2(save_in,STDIN_FILENO))
 			{
 				perror("dup2");
 				exit(1);
+			}*/
+			redirect(save_in,STDIN_FILENO);
+			if (o_redir1 || o_redir2)
+			{
+				cout << "save out close" << endl; //TEST
+				redirect(save_out,STDOUT_FILENO);
 			}
-			my_close(save_in);
-			//dup2(save_out,fd[1]);
 			continue;
 				
 		}
