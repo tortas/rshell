@@ -1,0 +1,245 @@
+Script started on Mon 08 Jun 2015 10:03:19 PM PDT
+~
+lseeb002@hammer $ cd rshell
+~/rshell
+lseeb002@hammer $ bin/rshell
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Welcome to the piping script
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Input Redirection (by itself)
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat < LICENSE
+Copyright (c) 2015, tortas
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of rshell nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Another example of input redirection 
+lseeb002@hammer.cs.ucr.edu:~/rshell$ ls
+bin  LICENSE  Makefile	README.md  src	tests
+lseeb002@hammer.cs.ucr.edu:~/rshell$ tee test1 < LICENSE
+Copyright (c) 2015, tortas
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of rshell nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test1
+Copyright (c) 2015, tortas
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of rshell nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Just the "<" symbol
+lseeb002@hammer.cs.ucr.edu:~/rshell$ <
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Spaces and "<"
+lseeb002@hammer.cs.ucr.edu:~/rshell$ grep and <        LICENSE
+Redistribution and use in source and binary forms, with or without
+  list of conditions and the following disclaimer.
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+lseeb002@hammer.cs.ucr.edu:~/rshell$ grep       by     <LICENSE
+lseeb002@hammer.cs.ucr.edu:~/rshell$ grep         name< LICENSE
+* Neither the name of rshell nor the names of its
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Testing Oup tput Redirection
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Just the symbol
+lseeb002@hammer.cs.ucr.edu:~/rshell$ >
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Output to a file (truncate)
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #And we're going to create the file
+lseeb002@hammer.cs.ucr.edu:~/rshell$ ls
+bin  LICENSE  Makefile	README.md  src	test1  tests
+lseeb002@hammer.cs.ucr.edu:~/rshell$ echo hello world
+hello world
+lseeb002@hammer.cs.ucr.edu:~/rshell$ echo hello world > test123
+lseeb002@hammer.cs.ucr.edu:~/rshell$ ls
+bin  LICENSE  Makefile	README.md  src	test1  test123	tests
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test123
+hello world
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Let's try the appending output
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test123 >> test123
+cat: test123: input file is output file
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Catches the error for input file = outf put file
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #No segfault!
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Testing appending output
+lseeb002@hammer.cs.ucr.edu:~/rshell$ echo today is a good day >> test123
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test123
+hello world
+today is a good day
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Spaces and output redirection
+lseeb002@hammer.cs.ucr.edu:~/rshell$ echo think positive >>                 test123
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test123
+hello world
+today is a good day
+think positive
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test123 > test456                     
+lseeb002@hammer.cs.ucr.edu:~/rshell$ 
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat       test123>          test456
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test456
+hello world
+today is a good day
+think positive
+lseeb002@hammer.cs.ucr.edu:~/rshell$ ls
+bin  LICENSE  Makefile	README.md  src	test1  test123	test456  tests
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Input Output Together TEST
+lseeb002@hammer.cs.ucr.edu:~/rshell$ grep hello < test123 >> test456
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test456
+hello world
+today is a good day
+think positive
+hello world
+lseeb002@hammer.cs.ucr.edu:~/rshell$ grep today < test123 > testtest
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat testtest
+today is a good day
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Spacing
+lseeb002@hammer.cs.ucr.edu:~/rshell$ tee mrtsts<    testtest>>testtes   123
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat mrtsts
+today is a good day
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test123
+hello world
+today is a good day
+think positive
+today is a good day
+lseeb002@hammer.cs.ucr.edu:~/rshell$ grep day          <test123>test456
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat test456
+today is a good day
+today is a good day
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Erased and redirected
+lseeb002@hammer.cs.ucr.edu:~/rshell$ #Piping Tests
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat LICENSE | grep name 
+* Neither the name of rshell nor the names of its
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat LICENSE | grep name | grep rshell 
+* Neither the name of rshell nor the names of its
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat < test123 | tr A-Z a-z | tee newOutputFile | tr a-z A-Z >anotherfile
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat anotherfile
+HELLO WORLD
+TODAY IS A GOOD DAY
+THINK POSITIVE
+TODAY IS A GOOD DAY
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat newOutputFile
+hello world
+today is a good day
+think positive
+today is a good day
+lseeb002@hammer.cs.ucr.edu:~/rshell$ grep TODAY < anotherfile | tr A-Z a-z >>anotherfile           newOutputFile
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat newo OutputFile
+hello world
+today is a good day
+think positive
+today is a good day
+today is a good day
+today is a good day
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat<test123|cat   echo|echo|echo
+
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat <test123
+hello world
+today is a good day
+think positive
+today is a good day
+lseeb002@hammer.cs.ucr.edu:~/rshell$ ls
+anotherfile  bin  LICENSE  Makefile  mrtsts  newOutputFile  README.md  src  test1  test123  test456  tests  testtest
+lseeb002@hammer.cs.ucr.edu:~/rshell$ rm mrtsts
+lseeb002@hammer.cs.ucr.edu:~/rshell$ cat<anotherfile|tr A-Z a-z>>test1
+lseeb002@hammer.cs.ucr.edu:~/rshell$ ct at test1
+Copyright (c) 2015, tortas
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of rshell nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+hello world
+today is a good day
+think positive
+today is a good day
+lseeb002@hammer.cs.ucr.edu:~/rshell$ exit
+~/rshell
+lseeb002@hammer $ exit
+exit
+
+Script done on Mon 08 Jun 2015 11:10:25 PM PDT
